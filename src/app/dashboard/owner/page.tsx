@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import ReplyInquiryModal from "@/components/inquiries/ReplyInquiryModal"
+import { getOwnerInquiries,replyInquiry } from "@/services/inquiry.service"; 
 
 type StatCard = {
     title: string;
@@ -23,38 +24,27 @@ export default function OwnerDashboardPage() {
     const [inquiries, setInquiries] = useState<Inquiry[]>([]);
 
     useEffect(() => {
-        // NANTI GANTI INI JADI API CALL
-        setStats([
-            { title: "Total Properties", value: 12, subtitle: "+2 bulan ini" },
-            { title: "Total Inquiries", value: 87, subtitle: "+15 bulan ini" },
-            { title: "Pending Inquiries", value: 23 },
-            { title: "Contacted Inquiries", value: 64 },
-        ]);
+        fetchInquiries();
 
-        setInquiries([
-            {
-                id: "1",
-                name: "Sarah Johnson",
-                property: "Ocean View Paradise",
-                date: "15 Des 2024",  
-                status: "PENDING",
-            },
-            {
-                id: "2",
-                name: "Michael Chen",
-                property: "Villa Purnama Luxury",
-                date: "14 Des 2024",  
-                status: "RESPONDED",
-            },
-            {
-                id: "3",
-                name: "Emily Williams",
-                property: "Mountain Breeze Villa",
-                date: "13 Des 2024",  
-                status: "PENDING",
-            },
-        ]);
     }, []);
+
+    const fetchInquiries = async () => {
+        try {
+            const data = await getOwnerInquiries();
+
+            const mapped = data.map((inq: any) => ({
+                id: inq.id,
+                name: inq.name,
+                property: inq.property.name,
+                date: new Date(inq.createdAt).toLocaleDateString(),
+                status: inq.status
+            }));
+
+            setInquiries(mapped);
+        } catch (error){
+            console.log("Failed fetch inquiries", error);
+        }
+    };
 
     const [replyOpen, setReplyOpen] = useState(false);
     const [selectedInquiry, setSelectedInquiry] = useState<Inquiry | null>(null);
@@ -64,26 +54,27 @@ export default function OwnerDashboardPage() {
         setReplyOpen(true);
     };
 
-    const handleSendReply = (message: string) => {
-        if(!selectedInquiry) return;
-        
-        console.log("Send reply:", {
-            inquiryId: selectedInquiry?.id,
-            message,
-        });
+    const handleSendReply = async (message: string) => {
+        if (!selectedInquiry) return;
 
-        setInquiries((prev) => 
-        prev.map((inq) => 
-            inq.id === selectedInquiry?.id
-                ? { ...inq, status: "RESPONDED" }
-                : inq
+        try {
+            await replyInquiry(selectedInquiry.id, message);
+
+            setInquiries((prev) =>
+            prev.map((inq) =>
+                inq.id === selectedInquiry.id
+                    ? { ...inq, status: "RESPONDED" }
+                    : inq
             )
         );
 
         setReplyOpen(false);
         setSelectedInquiry(null);
-
-    }
+        } catch (error) {
+            console.error("Reply inquiry error:", error);  
+            alert("Gagal mengirim balasan. Coba lagi.");
+        }
+    };
 
     return (
         <div className="space-y-8">
@@ -142,13 +133,6 @@ export default function OwnerDashboardPage() {
                                     ? "Belum Dibalas"
                                     : "Sudah Dibalas"}
                                 </span>
-
-                                {/* <Link
-                                    href={`/dashboard/owner/inquiries/${inq.id}`}
-                                    className="bg-blue-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-blue-700"
-                                >
-                                    Balas
-                                </Link> */}
 
                                 <button
                                     onClick={() => handleReply(inq)}
