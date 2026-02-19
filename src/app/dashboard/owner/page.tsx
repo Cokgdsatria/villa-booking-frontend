@@ -17,6 +17,7 @@ type Inquiry = {
     property: string;
     date: string;
     status: "PENDING" | "RESPONDED";
+    message: string;
 };
 
 export default function OwnerDashboardPage() {
@@ -37,7 +38,8 @@ export default function OwnerDashboardPage() {
                 name: inq.name,
                 property: inq.property.name,
                 date: new Date(inq.createdAt).toLocaleDateString(),
-                status: inq.status
+                status: inq.status,
+                message: inq.message
             }));
 
             setInquiries(mapped);
@@ -117,6 +119,9 @@ export default function OwnerDashboardPage() {
                             <div>
                                 <p className="font-medium">{inq.name}</p>
                                 <p className="text-sm text-gray-500">{inq.property}</p>
+                                <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                                    {inq.message}
+                                </p>
                             </div>
 
                             <div className="flex items-center gap-4">
@@ -136,9 +141,15 @@ export default function OwnerDashboardPage() {
 
                                 <button
                                     onClick={() => handleReply(inq)}
-                                    className="bg-blue-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-blue-700"
+                                    disabled={inq.status === "RESPONDED"}
+                                    className={`text-sm px-4 py-2 rounded-lg transition ${
+                                        inq.status === "RESPONDED"
+                                            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                            : "bg-blue-600 text-white hover:bg-blue-700"
+                                    }`}
                                 >
-                                    Balas
+                                    {/* Balas */}
+                                    {inq.status === "RESPONDED" ? "Sudah Dibalas" : "Balas"}
                                 </button>
                             </div>
                         </div>
