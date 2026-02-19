@@ -6,6 +6,14 @@ export const getOwnerInquiries = async () => {
 };
 
 export const replyInquiry = async (id: string, message: string) => {
-  const res = await api.post(`/inquiries/${id}/reply`, { message });
+  const res = await api.post(`/inquiries/${id}/reply`, {
+    message,
+  });
+
   return res.data;
+};
+
+export const getInquiryDetail = async (id: string) => {
+  const res = await api.get(`/inquiries/${id}`);
+    return res.data.data;
 };
