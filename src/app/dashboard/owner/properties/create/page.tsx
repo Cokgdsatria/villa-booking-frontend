@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react";
+import { useState, type ChangeEvent, type FormEvent } from "react";
 import { useRouter } from "next/navigation"
-import { createProperty } from "@/services/property.service";
+import { createProperty, uploadPropertyPhotos, } from "@/services/property.service";
 
 export default function CreatePropertyPage() {
     const router = useRouter();
@@ -22,142 +22,272 @@ export default function CreatePropertyPage() {
         thumbnailUrl: "",
     });
 
+    const [files, setFiles] = useState<FileList | null>(null);
+
+    const [previewImages, setPreviewImages] = useState<string[]>([]);
+
     const handleChange = (e: any) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
-   const handleSubmit = async (e: any) => {
-    e.pewventDefault();
+const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
 
-    try {
-        await createProperty({
-            ...form,
-            totalRoom: Number(form.totalRoom),
-            bedroom: Number(form.bedroom),
-            bathroom: Number(form.bathroom),
-            priceMonthly: Number(form.priceMonthly),
-            priceYearly: Number(form.priceYearly),
-        });
+  try {
+    const property = await createProperty({
+      ...form,
+      totalRoom: Number(form.totalRoom),
+      bedroom: Number(form.bedroom),
+      bathroom: Number(form.bathroom),
+      priceMonthly: Number(form.priceMonthly),
+      priceYearly: Number(form.priceYearly),
+    });
 
-        router.push("/dashboard/owner/properties");
-    } catch (error) {
-        alert("Gagal menambahkan property");
-    } 
-   };
+    if (files && files.length > 0) {
+      await uploadPropertyPhotos(property.id, files);
+    }
 
-    return (
-        <div className="flex justify-center">
-            <div className="max-w-4xl bg-white p-8 rounded-xl border shadow-sm">
-                <h1 className="text-2xl font-bold mb-8">Tambah Properti</h1>
+    router.push("/dashboard/owner/properties");
+  } catch (error) {
+    console.error(error);
+    alert("Gagal menambahkan property");
+  }
+};
 
-                <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-6">
-                    {/* LEFT COLUMN */}
-                    <div className="space-y-4">
-                        <input
-                            name="name"
-                            placeholder="Nama Properti"
-                            onChange={handleChange}
-                            className="w-full border rounded-lg px-3 py-2"
-                            required
-                        />
 
-                        <input
-                            name="type"
-                            placeholder="Tipe Properti (Villa / Apartment)"
-                            onChange={handleChange}
-                            className="w-full border rounded-lg px-3 py-2"
-                            required
-                        />
 
-                        <input 
-                            name="province"
-                            placeholder="Provinsi"
-                            onChange={handleChange}
-                            className="w-full border rounded-lg px-3 py-2"
-                            required
-                        />
+return (
+  <div className="flex justify-center py-10">
+    <div className="w-full max-w-5xl bg-white p-10 rounded-3xl shadow-lg border">
 
-                        <input 
-                            name="city"
-                            placeholder="Kota"
-                            onChange={handleChange}
-                            className="w-full border rounded-lg px-3 py-2"
-                            required
-                        />
+      <h1 className="text-3xl font-bold mb-10 text-gray-800">
+        Add New Property
+      </h1>
 
-                        <input 
-                            name="address"
-                            placeholder="Alamat Lengkap"
-                            onChange={handleChange}
-                            className="w-full border rounded-lg px-3 py-2"
-                            required
-                        />
+      <form onSubmit={handleSubmit} className="space-y-10">
 
-                        <textarea 
-                            name="description"
-                            placeholder="Deskripsi Properti"
-                            onChange={handleChange}
-                            className="w-full border rounded-lg px-3 py-2"
-                            rows={4}
-                            required
-                        />
-                    </div>
+        {/* BASIC INFORMATION */}
+        <div>
+          <h2 className="text-lg font-semibold mb-6 text-gray-600 uppercase tracking-wide">
+            Basic Information
+          </h2>
 
-                    {/* RIGHT COLUMN */}
-                    <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-6">
 
-                        <input 
-                            name="totalRoom"
-                            type="number"
-                            placeholder="Total Room"
-                            onChange={handleChange}
-                            className="w-full border rounded-lg px-3 py-2"
-                            required
-                        />
-
-                        <input 
-                            name="bathroom"
-                            type="number"
-                            placeholder="Bathroom"
-                            onChange={handleChange}
-                            className="w-full border rounded-lg px-3 py-2"
-                            required
-                        />
-
-                        <input
-                            name="priceMonthly"
-                            type="number"
-                            placeholder="Harga Bulanan"
-                            onChange={handleChange}
-                            className="w-full border rounded-lg px-3 py-2"
-                            required
-                        />
-
-                        <input
-                            name="priceYearly"
-                            type="number"
-                            placeholder="Harga Tahunan"
-                            onChange={handleChange}
-                            className="w-full border rounded-lg px-3 py-2"
-                            required
-                        />
-
-                        <input
-                            name="thumbnailUrl"
-                            placeholder="Thumbnail URL"
-                            onChange={handleChange}
-                            className="w-full border rounded-lg px-3 py-2"
-                        />
-                    </div>
-
-                    {/* BUTTON */}
-                    <div className="col-span-2">
-                        <button type="submit" className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
-                            Tambah Properti
-                        </button>
-                    </div>
-                </form>
+            {/* Property Name */}
+            <div className="border border-gray-300 rounded-2xl p-4 focus-within:border-blue-500 transition">
+              <label className="block text-xs font-semibold text-gray-500 uppercase mb-2">
+                Property Name
+              </label>
+              <input
+                name="name"
+                placeholder="Your villa"
+                value={form.name}
+                onChange={handleChange}
+                className="w-full outline-none bg-transparent"
+              />
             </div>
+
+            {/* Type */}
+            <div className="border border-gray-300 rounded-2xl p-4 focus-within:border-blue-500 transition">
+              <label className="block text-xs font-semibold text-gray-500 uppercase mb-2">
+                Type
+              </label>
+              <input
+                name="type"
+                value={form.type}
+                onChange={handleChange}
+                className="w-full outline-none bg-transparent"
+              />
+            </div>
+
+            {/* Province */}
+            <div className="border border-gray-300 rounded-2xl p-4 focus-within:border-blue-500 transition">
+              <label className="block text-xs font-semibold text-gray-500 uppercase mb-2">
+                Province
+              </label>
+              <input
+                name="province"
+                value={form.province}
+                onChange={handleChange}
+                className="w-full outline-none bg-transparent"
+              />
+            </div>
+
+            {/* City */}
+            <div className="border border-gray-300 rounded-2xl p-4 focus-within:border-blue-500 transition">
+              <label className="block text-xs font-semibold text-gray-500 uppercase mb-2">
+                City
+              </label>
+              <input
+                name="city"
+                value={form.city}
+                onChange={handleChange}
+                className="w-full outline-none bg-transparent"
+              />
+            </div>
+
+            {/* Address */}
+            <div className="col-span-2 border border-gray-300 rounded-2xl p-4 focus-within:border-blue-500 transition">
+              <label className="block text-xs font-semibold text-gray-500 uppercase mb-2">
+                Address
+              </label>
+              <input
+                name="address"
+                value={form.address}
+                onChange={handleChange}
+                className="w-full outline-none bg-transparent"
+              />
+            </div>
+
+            {/* Thumbnail URL */}
+            <div className="col-span-2 border border-gray-300 rounded-2xl p-4 focus-within:border-blue-500 transition">
+              <label className="block text-xs font-semibold text-gray-500 uppercase mb-2">
+                Thumbnail URL
+              </label>
+              <input
+                name="thumbnailUrl"
+                value={form.thumbnailUrl}
+                onChange={handleChange}
+                className="w-full outline-none bg-transparent"
+              />
+            </div>
+
+          </div>
         </div>
-    );
+
+
+        {/* ROOM & PRICING */}
+        <div>
+          <h2 className="text-lg font-semibold mb-6 text-gray-600 uppercase tracking-wide">
+            Room & Pricing
+          </h2>
+
+          <div className="grid grid-cols-3 gap-6">
+
+            {["totalRoom", "bedroom", "bathroom"].map((field) => (
+              <div
+                key={field}
+                className="border border-gray-300 rounded-2xl p-4 focus-within:border-blue-500 transition"
+              >
+                <label className="block text-xs font-semibold text-gray-500 uppercase mb-2">
+                  {field === "totalRoom"
+                    ? "Total Room"
+                    : field.charAt(0).toUpperCase() + field.slice(1)}
+                </label>
+                <input
+                  type="number"
+                  name={field}
+                  value={(form as any)[field]}
+                  onChange={handleChange}
+                  className="w-full outline-none bg-transparent"
+                />
+              </div>
+            ))}
+
+            {["priceMonthly", "priceYearly"].map((field) => (
+              <div
+                key={field}
+                className="border border-gray-300 rounded-2xl p-4 focus-within:border-blue-500 transition"
+              >
+                <label className="block text-xs font-semibold text-gray-500 uppercase mb-2">
+                  {field === "priceMonthly"
+                    ? "Monthly Price"
+                    : "Yearly Price"}
+                </label>
+                <input
+                  type="number"
+                  name={field}
+                  value={(form as any)[field]}
+                  onChange={handleChange}
+                  className="w-full outline-none bg-transparent"
+                />
+              </div>
+            ))}
+
+          </div>
+        </div>
+
+
+        {/* PHOTO UPLOAD */}
+        <div>
+          <h2 className="text-lg font-semibold mb-6 text-gray-600 uppercase tracking-wide">
+            Property Photos
+          </h2>
+
+          <div className="border-2 border-dashed border-blue-300 rounded-2xl p-10 text-center">
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={(e) => {
+                const selectedFiles = e.target.files;
+                if (!selectedFiles) return;
+
+                setFiles(selectedFiles);
+
+                const imageUrls = Array.from(selectedFiles).map((file) =>
+                  URL.createObjectURL(file)
+                );
+
+                setPreviewImages(imageUrls);
+              }}
+              className="hidden"
+              id="photoUpload"
+            />
+
+            <label
+              htmlFor="photoUpload"
+              className="cursor-pointer text-blue-600 font-semibold"
+            >
+              Click to upload photo
+            </label>
+          </div>
+
+          {previewImages.length > 0 && (
+            <div className="grid grid-cols-4 gap-4 mt-6">
+              {previewImages.map((src, index) => (
+                <img
+                  key={index}
+                  src={src}
+                  alt="Preview"
+                  className="h-28 w-full object-cover rounded-xl border"
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+
+        {/* DESCRIPTION */}
+        <div>
+          <h2 className="text-lg font-semibold mb-6 text-gray-600 uppercase tracking-wide">
+            Description
+          </h2>
+
+          <div className="border border-gray-300 rounded-2xl p-4 focus-within:border-blue-500 transition">
+            <textarea
+              name="description"
+              value={form.description}
+              onChange={handleChange}
+              rows={5}
+              className="w-full outline-none bg-transparent resize-none"
+            />
+          </div>
+        </div>
+
+
+        {/* SUBMIT */}
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white py-4 rounded-2xl text-lg font-semibold hover:bg-blue-700 transition"
+        >
+          Create Property
+        </button>
+
+      </form>
+    </div>
+  </div>
+);
+
 }
