@@ -42,23 +42,6 @@ export default function InquiryDetailPage() {
 
     return (
         <div className="space-y-9">
-            {/* <h1 className="text-xl font-semibold">Detain Inquiry</h1>
-
-            <div className="bg-white p-6 rounded-xl border space-y-2">
-                <p><b>Nama:</b> {inquiry.name}</p>
-                <p><b>Email:</b> {inquiry.email}</p>
-                <p><b>Telepon</b> {inquiry.telephone}</p>
-                <p><b>Property:</b> {inquiry.property.name}</p>
-                <p><b>Statuus:</b> {inquiry.status}</p>
-                <p className="bg-gray-50 p-3 rounded">{inquiry.message}</p>
-            </div>
-
-            <button
-                onClick={() => setReplyOpen(true)}
-                className="bg-blue-600 text-white px-4 py-2 rounded"
-            >
-                Balas Inquiry
-            </button> */}
 
             {/* HEADER */}
             <div className="flex justify-between items-center">
