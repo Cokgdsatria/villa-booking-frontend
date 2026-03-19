@@ -45,3 +45,13 @@ export const getPropertyDetail = async (id: string) => {
   const res = await api.get(`/properties/${id}`);
   return res.data.data;
 }
+
+export const deleteProperty = async (id: string) => {
+  const res = await api.delete(`/properties/${id}`);
+  return res.data;
+}
+
+export const getDashboardStats = async () => {
+  const res = await api.get("/properties/owner/dashboard");
+  return res.data;
+};

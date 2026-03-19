@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getOwnerProperties } from "@/services/property.service";
+import { deleteProperty } from "@/services/property.service";
 
 export default function OwnerPropertiesPage() {
     const [properties, setProperties] = useState<any[]>([]);
@@ -30,6 +31,24 @@ export default function OwnerPropertiesPage() {
             </div>
         );
     }
+
+    const handleDelete = async (id: string) => {
+        const confirmDelete = window.confirm(
+            "Apakah kamu yakin ingin menghapus property ini?"
+        );
+
+        if (!confirmDelete) return;
+
+        try {
+            await deleteProperty(id);
+
+            // Refresh list setelah delete
+            setProperties((prev) => prev.filter((p) => p.id !== id));
+        } catch (error) {
+            console.error(error);
+            alert("Gagal menghapus property");
+        }
+    };
 
     return (
         <div className="p-6">
@@ -74,6 +93,13 @@ export default function OwnerPropertiesPage() {
                                 >
                                     Edit
                                 </Link>
+
+                                <button
+                                    onClick={() => handleDelete(property.id)}
+                                    className="px-3 py-1 text-sm bg-red-500 hover:bg-red-600 text-white rounded-lg"
+                                    >
+                                    Delete
+                                </button>
                             </div>
                         </div>
                     ))}

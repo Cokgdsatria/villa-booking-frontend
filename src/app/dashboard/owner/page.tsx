@@ -4,12 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import ReplyInquiryModal from "@/components/inquiries/ReplyInquiryModal"
 import { getOwnerInquiries,replyInquiry } from "@/services/inquiry.service"; 
-
-type StatCard = {
-    title: string;
-    value: number;
-    subtitle?: string;
-};
+import { getDashboardStats } from "@/services/property.service";
 
 type Inquiry = {
     id: string;
@@ -21,13 +16,30 @@ type Inquiry = {
 };
 
 export default function OwnerDashboardPage() {
-    const [stats, setStats] = useState<StatCard[]>([]);
+    // Dashboard Stats
+    const [stats, setStats] = useState<any>(null);
+
+    //inquiries
     const [inquiries, setInquiries] = useState<Inquiry[]>([]);
 
-    useEffect(() => {
-        fetchInquiries();
+    const [replyOpen, setReplyOpen] = useState(false);
+    const [selectedInquiry, setSelectedInquiry] = useState<Inquiry | null>(null);
 
+    useEffect(() => {
+        console.log("Dashboard mounted"); //debug
+        fetchStats();
+        fetchInquiries();
     }, []);
+
+    const fetchStats = async () => {
+        try {
+            const data = await getDashboardStats();
+            setStats(data);
+        } catch (error) {
+            console.error("Failed fetch stats", error);
+        }
+    };
+
 
     const fetchInquiries = async () => {
         try {
@@ -48,8 +60,7 @@ export default function OwnerDashboardPage() {
         }
     };
 
-    const [replyOpen, setReplyOpen] = useState(false);
-    const [selectedInquiry, setSelectedInquiry] = useState<Inquiry | null>(null);
+    
 
     const handleReply = (inquiry: Inquiry) => {
         setSelectedInquiry(inquiry);
@@ -80,23 +91,31 @@ export default function OwnerDashboardPage() {
 
     return (
         <div className="space-y-8">
-            {/* ==STAT CARD == */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {stats.map((stat) => (
-                    <div
-                        key={stat.title}
-                        className="bg-white rounded-xl p-6 shadow-sm border"
-                    >
-                        <p className="text-sm text-gray-500">{stat.title}</p>
-                        <h3 className="text-2xl font-bold mt-1">{stat.value}</h3>
-                        {stat.subtitle && (
-                            <span className="inline-block mt-2 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
-                                {stat.subtitle}
-                            </span>
-                        )}
+            
+            {/*DASHBOARD STATS */}
+            {stats && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="bg-white rounded-xl p-6 shadow-sm border">
+                        <p className="text-sm text-gray-500">Total Revenue</p>
+                        <h3 className="text-3xl font-bold mt-1">${stats.totalRevenue}</h3>
                     </div>
-                ))}
-            </div>
+
+                    <div className="bg-white rounded-xl p-6 shadow-sm border">
+                        <p className="text-sm text-gray-500">Total Bookings</p>
+                        <h3 className="text-2xl font-bolt mt-1">{stats.totalBookings}</h3>
+                    </div>
+
+                    <div className="bg-white rounded-xl p-6 shadow-sm border">
+                        <p className="text-sm text-gray-500">Total Inquiries</p>
+                        <h3 className="text-2xl font-bold mt-1">{stats.totalInquiries}</h3>
+                    </div>
+
+                    <div className="bg-white rounded-xl p-6 shadow-sm border">
+                        <p className="text-sm text-fray-500">Avg Rating</p>
+                        <h3 className="text-2xl font-bold mt-1">{stats.avgRating}</h3> 
+                    </div>
+                </div>
+            )}
 
             {/* == INQUIRIES LIST == */}
             <div className="bg-white rounded-xl shadow-sm border">
