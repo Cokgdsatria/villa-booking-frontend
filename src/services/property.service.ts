@@ -55,3 +55,22 @@ export const getDashboardStats = async () => {
   const res = await api.get("/properties/owner/dashboard");
   return res.data;
 };
+
+export const updateProperty = async (id: string, data: any) => {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(`http://localhost:5000/properties/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    throw new Error("Gagal update property");
+  }
+
+  return res.json();
+};
