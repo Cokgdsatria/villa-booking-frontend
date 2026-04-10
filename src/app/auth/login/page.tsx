@@ -1,7 +1,8 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { login } from "@/services/auth.service";
 
@@ -13,8 +14,9 @@ const villaImages = [
     "/images/villa-3.jpg",
 ];
 
-export default function LoginPage() {
+function LoginPageInner() {
     const router = useRouter();
+    const searchParams = useSearchParams();
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -43,8 +45,6 @@ export default function LoginPage() {
     try {
         const res = await login({ email, password });
 
-        console.log("LOGIN RESPONSE:", res);
-
         const jwtToken = res?.token;
         const user = res?.user; 
 
@@ -55,28 +55,47 @@ export default function LoginPage() {
         // simpan token
         const storage = remember ? localStorage : sessionStorage;
         storage.setItem("token", jwtToken);
+        storage.setItem("user", JSON.stringify(user));
 
-        console.log("LOGIN SUCCESS, ROLE:", user.role);
+        const redirect = searchParams.get("redirect");
+        if (redirect) {
+          router.push(redirect);
+          return;
+        }
 
         if (user.role === "ADMIN") {
-        router.push("/dashboard/admin");
-        } else if (user.role === "OWNER") {
-        router.push("/dashboard/owner");
+          router.push("/dashboard/admin");
+        } else if (user.role === "OWNER" && user.owner) {
+          router.push("/dashboard/owner");
         } else {
-        router.push("/");
+          router.push("/");
         }
     } catch (err: any) {
-        console.error("LOGIN ERROR:", err);
-        setError("Email atau Password salah");
+        const message =
+            err?.response?.data?.message ||
+            err?.message ||
+            "Email atau Password salah";
+        setError(message);
     } finally {
         setLoading(false);
     }
     };
 
     return (
-        <div className="min-h-screen grid grid-cols-1 md:grid-cols-2 bg-gray-50">
+        <div
+            className="min-h-screen grid grid-cols-1 md:grid-cols-2 bg-gray-50"
+            style={{
+                minHeight: "100vh",
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))",
+                backgroundColor: "#f9fafb",
+            }}
+        >
             {/* LEFT IMAGE (DESKTOP ONLY)*/}
-            <div className="relative hidden md:block">
+            <div
+                className="relative hidden md:block"
+                style={{ position: "relative", minHeight: "100vh" }}
+            >
                 <Image
                     src={villaImages[currentImage]}
                     alt="Villa"
@@ -87,7 +106,10 @@ export default function LoginPage() {
             </div>
 
             {/* RIGHT FORM */}
-            <div className="flex items-center justify-center px-4 sm:px-6">
+            <div
+                className="flex items-center justify-center px-4 sm:px-6"
+                style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+            >
                 <div className="
                 w-full 
                 max-w-md
@@ -117,6 +139,10 @@ export default function LoginPage() {
                             <label className="block text-sm mb-1">Email</label>
                             <input
                                 type="email"
+                                name="email"
+                                autoComplete="email"
+                                autoCapitalize="none"
+                                spellCheck={false}
                                 placeholder="nama@gmail.com"
                                 className="
                                 w-full 
@@ -140,7 +166,9 @@ export default function LoginPage() {
 
                             <div className="relative">
                                 <input
-                                    type={showPassword ? "text" : "password"} // 🔴 NEW
+                                    type={showPassword ? "text" : "password"}
+                                    name="password"
+                                    autoComplete="current-password"
                                     placeholder="Masukkan password"
                                     className="
                                         w-full
@@ -148,7 +176,7 @@ export default function LoginPage() {
                                         rounded-lg
                                         px-4
                                         py-2
-                                        pr-12   /* 🔴 NEW: ruang untuk icon */
+                                        pr-12
                                         focus:outline-none
                                         focus:ring-2
                                         focus:ring-teal-500
@@ -180,12 +208,13 @@ export default function LoginPage() {
                             </div>
 
                             <div className="text-right mt-1">
-                                <a
-                                    href="#"
+                                <button
+                                    type="button"
                                     className="text-sm text-blue-600 hover:underline"
-                                >
+                                    onClick={() => alert("Fitur lupa password belum tersedia")}
+                                > 
                                     Lupa Password?
-                                </a>
+                                </button>
                             </div>
                         </div>
 
@@ -239,17 +268,22 @@ export default function LoginPage() {
 
                         <p className="mt-6 text-sm text-center">
                             Belum punya akun?{" "}
-                            <a
-                                href="#"
-                                className="text-blue-600 font-medium"
-                            >
+                            <Link href="/auth/register" className="text-blue-600 font-medium">
                                 Daftar Sekarang
-                            </a>
+                            </Link>
                         </p>
                 </div>
             </div>
         </div>
     );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginPageInner />
+    </Suspense>
+  );
 }
 
 

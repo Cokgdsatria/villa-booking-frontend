@@ -1,16 +1,47 @@
 import api from "@/services/api";
 
-export const createProperty = async (data: any) => {
-    const res = await api.post("/properties", {
-      ...data,
-      totalRoom: Number(data.totalRoom),
-      bedroom: Number(data.bedroom),
-      bathroom: Number(data.bathroom),
-      priceMonthly: Number(data.priceMonthly),
-      priceYearly: Number(data.priceYearly),
-    });
+export type PropertyListMeta = {
+  page: number;
+  limit: number;
+  totalItems: number;
+  totalPages: number;
+};
 
-    return res.data.data;
+export type PublicPropertyListItem = {
+  id: string;
+  name: string;
+  province: string;
+  city: string;
+  type: string;
+  totalRoom: number;
+  bedroom: number;
+  bathroom: number;
+  priceMonthly: number;
+  priceYearly: number;
+  thumbnailUrl?: string | null;
+  popularScore?: number;
+  location?: string;
+};
+
+export const createProperty = async (
+  data: any,
+  files: FileList | null
+) => {
+  const formData = new FormData();
+
+  // append data
+  Object.entries(data).forEach(([key, value]) => {
+    formData.append(key, String(value));
+  });
+
+  // append thumbnail
+  if (files && files.length > 0) {
+    formData.append("thumbnail", files[0]); 
+  }
+
+  const res = await api.post("/properties", formData);
+
+  return res.data.data;
 };
 
 export const getOwnerProperties = async () => {
@@ -45,6 +76,40 @@ export const getPropertyDetail = async (id: string) => {
   const res = await api.get(`/properties/${id}`);
   return res.data.data;
 }
+
+export const getPublicProperties = async (params?: {
+  page?: number;
+  limit?: number;
+  sort?: "popular" | "price_asc" | "price_desc" | "newest";
+  location?: string;
+  type?: string;
+  totalRoom?: number;
+}) => {
+  const res = await api.get("/properties", { params });
+  return res.data as { data: PublicPropertyListItem[]; meta: PropertyListMeta };
+};
+
+export const searchPublicProperties = async (params?: {
+  location?: string;
+  city?: string;
+  province?: string;
+  type?: string;
+  totalRoom?: number;
+  billingType?: "MONTHLY" | "YEARLY";
+  minPrice?: number;
+  maxPrice?: number;
+  page?: number;
+  limit?: number;
+  sort?: "name" | "priceMonthly" | "priceYearly";
+  order?: "asc" | "desc";
+}) => {
+  const res = await api.get("/properties/search", { params });
+  return res.data as {
+    status: string;
+    meta: { total: number; page: number; limit: number; totalPages: number };
+    data: PublicPropertyListItem[];
+  };
+};
 
 export const deleteProperty = async (id: string) => {
   const res = await api.delete(`/properties/${id}`);

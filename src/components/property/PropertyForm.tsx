@@ -2,6 +2,7 @@
 
 import { useState, type ChangeEvent, type FormEvent } from "react";
 
+
 interface PropertyFormProps {
   initialData?: any;
   onSubmit: (data: any, files: FileList | null) => Promise<void>;
@@ -39,20 +40,51 @@ export default function PropertyForm({
         e.preventDefault();
 
         try {
-            await onSubmit(
-                {
-                    ...form,
-                    totalRoom: Number(form.totalRoom),
-                    bedroom: Number(form.bedroom),
-                    bedroom: Number(form.bathroom),
-                    priceMonthly: Number(form.priceMonthly),
-                    priceYearly: Number(form.priceYearly),
-                },
-                files
-            );
+            const payload = {
+                ...form,
+                name: String(form.name).trim(),
+                type: String(form.type).trim(),
+                province: String(form.province).trim(),
+                city: String(form.city).trim(),
+                address: String(form.address).trim(),
+                description: String(form.description).trim(),
+                totalRoom: Number(form.totalRoom),
+                bedroom: Number(form.bedroom),
+                bathroom: Number(form.bathroom),
+                priceMonthly: Number(form.priceMonthly),
+                priceYearly: Number(form.priceYearly),
+            };
+
+            const missing: string[] = [];
+            if (!payload.name) missing.push("Property Name");
+            if (!payload.type) missing.push("Type");
+            if (!payload.province) missing.push("Province");
+            if (!payload.city) missing.push("City");
+            if (!payload.description) missing.push("Description");
+            if (!Number.isFinite(payload.totalRoom) || payload.totalRoom <= 0)
+                missing.push("Total Room");
+            if (!Number.isFinite(payload.bedroom) || payload.bedroom <= 0)
+                missing.push("Bedroom");
+            if (!Number.isFinite(payload.bathroom) || payload.bathroom <= 0)
+                missing.push("Bathroom");
+            if (!Number.isFinite(payload.priceMonthly) || payload.priceMonthly <= 0)
+                missing.push("Monthly Price");
+            if (!Number.isFinite(payload.priceYearly) || payload.priceYearly <= 0)
+                missing.push("Yearly Price");
+
+            if (missing.length > 0) {
+                alert(`Field wajib belum lengkap: ${missing.join(", ")}`);
+                return;
+            }
+
+            await onSubmit(payload, files);
         } catch (error){
             console.error(error);
-            alert("Gagal menyimpan property");
+            const message =
+                (error as any)?.response?.data?.message ||
+                (error as any)?.message ||
+                "Gagal menyimpan property";
+            alert(message);
         }
     }
 
@@ -87,6 +119,7 @@ export default function PropertyForm({
                     value={form.name}
                     onChange={handleChange}
                     className="w-full outline-none bg-transparent"
+                    required
                 />
                 </div>
 
@@ -100,6 +133,7 @@ export default function PropertyForm({
                     value={form.type}
                     onChange={handleChange}
                     className="w-full outline-none bg-transparent"
+                    required
                 />
                 </div>
 
@@ -113,6 +147,7 @@ export default function PropertyForm({
                     value={form.province}
                     onChange={handleChange}
                     className="w-full outline-none bg-transparent"
+                    required
                 />
                 </div>
 
@@ -126,6 +161,7 @@ export default function PropertyForm({
                     value={form.city}
                     onChange={handleChange}
                     className="w-full outline-none bg-transparent"
+                    required
                 />
                 </div>
 
@@ -183,6 +219,7 @@ export default function PropertyForm({
                     value={(form as any)[field]}
                     onChange={handleChange}
                     className="w-full outline-none bg-transparent"
+                    required
                     />
                 </div>
                 ))}
@@ -203,6 +240,7 @@ export default function PropertyForm({
                     value={(form as any)[field]}
                     onChange={handleChange}
                     className="w-full outline-none bg-transparent"
+                    required
                     />
                 </div>
                 ))}
@@ -274,6 +312,7 @@ export default function PropertyForm({
                 onChange={handleChange}
                 rows={5}
                 className="w-full outline-none bg-transparent resize-none"
+                required
                 />
             </div>
             </div>
