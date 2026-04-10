@@ -26,7 +26,6 @@ export default function OwnerDashboardPage() {
     const [selectedInquiry, setSelectedInquiry] = useState<Inquiry | null>(null);
 
     useEffect(() => {
-        console.log("Dashboard mounted"); //debug
         fetchStats();
         fetchInquiries();
     }, []);
@@ -94,24 +93,24 @@ export default function OwnerDashboardPage() {
             
             {/*DASHBOARD STATS */}
             {stats && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div className="bg-white rounded-xl p-6 shadow-sm border">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                    <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border">
                         <p className="text-sm text-gray-500">Total Revenue</p>
-                        <h3 className="text-3xl font-bold mt-1">IDR{stats.totalRevenue}</h3>
+                        <h3 className="text-2xl sm:text-3xl font-bold mt-1">IDR {stats.totalRevenue}</h3>
                     </div>
 
-                    <div className="bg-white rounded-xl p-6 shadow-sm border">
+                    <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border">
                         <p className="text-sm text-gray-500">Total Bookings</p>
-                        <h3 className="text-2xl font-bolt mt-1">{stats.totalBookings}</h3>
+                        <h3 className="text-2xl font-bold mt-1">{stats.totalBookings}</h3>
                     </div>
 
-                    <div className="bg-white rounded-xl p-6 shadow-sm border">
+                    <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border">
                         <p className="text-sm text-gray-500">Total Inquiries</p>
                         <h3 className="text-2xl font-bold mt-1">{stats.totalInquiries}</h3>
                     </div>
 
-                    <div className="bg-white rounded-xl p-6 shadow-sm border">
-                        <p className="text-sm text-fray-500">Avg Rating</p>
+                    <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border">
+                        <p className="text-sm text-gray-500">Avg Rating</p>
                         <h3 className="text-2xl font-bold mt-1">{stats.avgRating}</h3> 
                     </div>
                 </div>
@@ -119,7 +118,7 @@ export default function OwnerDashboardPage() {
 
             {/* == INQUIRIES LIST == */}
             <div className="bg-white rounded-xl shadow-sm border">
-                <div className="flex justify-between items-center p-6 border-b">
+                <div className="flex flex-wrap justify-between items-center gap-2 p-4 sm:p-6 border-b">
                     <h2 className="text-lg font-semibold">Inquiries Terbaru</h2>
                     <Link
                         href="/dashboard/owner/inquiries"
@@ -135,20 +134,20 @@ export default function OwnerDashboardPage() {
                             key={inq.id}
                             href={`/dashboard/owner/inquiries/${inq.id}`}
                         >
-                            <div className="flex items-center justify-between p-6 cursor-pointer hover:bg-gray-200 transition">
-                                <div>
-                                    <p className="font-medium">{inq.name}</p>
-                                    <p className="text-sm text-gray-500">{inq.property}</p>
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 sm:p-6 cursor-pointer hover:bg-gray-200 transition">
+                                <div className="min-w-0">
+                                    <p className="font-medium truncate">{inq.name}</p>
+                                    <p className="text-sm text-gray-500 truncate">{inq.property}</p>
                                     <p className="text-sm text-gray-600 mt-1 line-clamp-2">
                                         {inq.message}
                                     </p>
                                 </div>
 
-                                <div className="flex items-center gap-4">
-                                    <span className="text-sm text-gray-500">{inq.date}</span>
+                                <div className="flex flex-wrap items-center gap-2 sm:gap-4 justify-between sm:justify-end">
+                                    <span className="text-sm text-gray-500 whitespace-nowrap">{inq.date}</span>
 
                                     <span
-                                        className={`text-xs px-3 py-1 rounded-full ${
+                                        className={`text-xs px-3 py-1 rounded-full whitespace-nowrap ${
                                             inq.status === "PENDING"
                                             ? "bg-red-100 text-red-600"
                                             : "bg-green-100 text-green-600"
@@ -165,7 +164,7 @@ export default function OwnerDashboardPage() {
                                             handleReply(inq)
                                         }}
                                         disabled={inq.status === "RESPONDED"}
-                                        className={`text-sm px-4 py-2 rounded-lg transition ${
+                                        className={`text-sm px-4 py-2 rounded-lg transition w-full sm:w-auto ${
                                             inq.status === "RESPONDED"
                                                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                                                 : "bg-blue-600 text-white hover:bg-blue-700"

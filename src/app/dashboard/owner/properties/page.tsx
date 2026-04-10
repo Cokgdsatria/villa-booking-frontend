@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getOwnerProperties } from "@/services/property.service";
 import { deleteProperty } from "@/services/property.service";
+import { resolveAssetUrl } from "@/utils/url";
 
 export default function OwnerPropertiesPage() {
     const [properties, setProperties] = useState<any[]>([]);
@@ -40,13 +41,21 @@ export default function OwnerPropertiesPage() {
         if (!confirmDelete) return;
 
         try {
-            await deleteProperty(id);
+            const result = await deleteProperty(id);
 
             // Refresh list setelah delete
             setProperties((prev) => prev.filter((p) => p.id !== id));
+
+            if (result?.action === "INACTIVATED") {
+                alert(result?.message || "Property dinonaktifkan.");
+            }
         } catch (error) {
             console.error(error);
-            alert("Gagal menghapus property");
+            const message =
+                (error as any)?.response?.data?.message ||
+                (error as any)?.message ||
+                "Gagal menghapus property";
+            alert(message);
         }
     };
 
@@ -69,12 +78,24 @@ export default function OwnerPropertiesPage() {
                     </Link>
                 </div>
             ) : (
-                <div className="grid grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {properties.map((property) => (
                         <div
                             key={property.id}
                             className="border rounded-xl p-4 shadow-sm bg-white"
                         >
+                            <img
+                                src={
+                                    resolveAssetUrl(property.thumbnailUrl) ||
+                                    "/images/villa-1.jpg"
+                                }
+                                alt={property.name}
+                                className="w-full h-40 object-cover rounded-lg mb-3"
+                                loading="lazy"
+                                onError={(e) => {
+                                    e.currentTarget.src = "/images/villa-1.jpg";
+                                }}
+                            />
                             <h2 className="font-semibold text-lg">{property.name}</h2>
                             <p className="text-gray-500">{property.city}, {property.province}</p>
                             <p className="text-blue-600 font-semibold mt-2">Rp {property.priceMonthly} / bulan</p>

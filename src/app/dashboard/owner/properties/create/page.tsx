@@ -1,20 +1,27 @@
-"use client"
+"use client";
 
 import { useRouter } from "next/navigation";
 import PropertyForm from "@/components/property/PropertyForm";
-import { createProperty, uploadPropertyPhotos } from "@/services/property.service";
+import { createProperty } from "@/services/property.service";
 
 export default function CreatePropertyPage() {
   const router = useRouter();
 
   const handleCreate = async (data: any, files: FileList | null) => {
-    const property = await createProperty(data);
+    try {
+      const property = await createProperty(data, files);
 
-    if (files && files.length > 0) {
-      await uploadPropertyPhotos(property.id, files);
+      console.log("CREATED:", property);
+
+      router.push("/dashboard/owner/properties");
+    } catch (error) {
+      console.error(error);
+      const message =
+        (error as any)?.response?.data?.message ||
+        (error as any)?.message ||
+        "Gagal menyimpan property";
+      alert(message);
     }
-
-    router.push("/dashboard/owner/properties");
   };
 
   return <PropertyForm onSubmit={handleCreate} />;
