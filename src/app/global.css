@@ -1,3 +1,19 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --ocean-50: 240 253 250;
+    --ocean-100: 204 251 241;
+    --ocean-600: 13 148 136;
+    --ocean-700: 15 118 110;
+    --ocean-900: 19 78 74;
+  }
+
+  body {
+    background: radial-gradient(1200px 600px at 10% 0%, rgba(204, 251, 241, 0.7), transparent 60%),
+      radial-gradient(900px 500px at 90% 10%, rgba(224, 242, 254, 0.7), transparent 55%),
+      linear-gradient(to bottom, rgb(248, 250, 252), rgb(255, 255, 255));
+  }
+}
