@@ -60,13 +60,13 @@ export default function PublicPropertyDetailPage({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen">
         <PublicNavbar />
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
-          <div className="h-10 w-48 bg-white border rounded-lg" />
+          <div className="h-10 w-48 bg-white/70 backdrop-blur border border-white/60 rounded-xl" />
           <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 h-96 bg-white border rounded-2xl" />
-            <div className="h-96 bg-white border rounded-2xl" />
+            <div className="lg:col-span-2 h-96 bg-white/70 backdrop-blur border border-white/60 rounded-3xl" />
+            <div className="h-96 bg-white/70 backdrop-blur border border-white/60 rounded-3xl" />
           </div>
         </div>
       </div>
@@ -75,11 +75,11 @@ export default function PublicPropertyDetailPage({
 
   if (!property) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen">
         <PublicNavbar />
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
-          <div className="bg-white border rounded-xl p-6">
-            <div className="font-semibold">Property tidak ditemukan</div>
+          <div className="bg-white/70 backdrop-blur border border-white/60 rounded-3xl p-6">
+            <div className="font-semibold text-slate-900">Property tidak ditemukan</div>
           </div>
         </div>
       </div>
@@ -89,20 +89,20 @@ export default function PublicPropertyDetailPage({
   const photos = Array.isArray(property.photos) ? property.photos : [];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <PublicNavbar />
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-slate-600">
           {property.city}, {property.province}
         </div>
-        <h1 className="mt-1 text-2xl sm:text-3xl font-bold text-gray-900">
+        <h1 className="mt-1 text-2xl sm:text-4xl font-semibold text-slate-900">
           {property.name}
         </h1>
 
         <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            <div className="bg-white border rounded-2xl overflow-hidden">
+            <div className="bg-white/70 backdrop-blur border border-white/60 rounded-3xl overflow-hidden">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-2 p-2">
                 <div className="md:col-span-2 h-64 bg-gray-100 rounded-xl overflow-hidden">
                   <img
@@ -142,39 +142,39 @@ export default function PublicPropertyDetailPage({
               </div>
             </div>
 
-            <div className="bg-white border rounded-2xl p-6">
-              <h2 className="font-semibold text-gray-900">About This Space</h2>
-              <p className="mt-3 text-gray-600 leading-relaxed">
+            <div className="bg-white/70 backdrop-blur border border-white/60 rounded-3xl p-6">
+              <h2 className="font-semibold text-slate-900">About This Space</h2>
+              <p className="mt-3 text-slate-600 leading-relaxed">
                 {property.description}
               </p>
 
-              <div className="mt-6 grid grid-cols-3 sm:grid-cols-5 gap-2 text-xs text-gray-600">
-                <div className="border rounded-full px-3 py-1 text-center">
+              <div className="mt-6 grid grid-cols-3 sm:grid-cols-5 gap-2 text-xs text-slate-700">
+                <div className="border border-cyan-100 bg-cyan-50/70 rounded-full px-3 py-1 text-center">
                   {property.totalRoom} Room
                 </div>
-                <div className="border rounded-full px-3 py-1 text-center">
+                <div className="border border-cyan-100 bg-cyan-50/70 rounded-full px-3 py-1 text-center">
                   {property.bedroom} Bedroom
                 </div>
-                <div className="border rounded-full px-3 py-1 text-center">
+                <div className="border border-cyan-100 bg-cyan-50/70 rounded-full px-3 py-1 text-center">
                   {property.bathroom} Bathroom
                 </div>
-                <div className="border rounded-full px-3 py-1 text-center">
+                <div className="border border-cyan-100 bg-cyan-50/70 rounded-full px-3 py-1 text-center">
                   {property.type}
                 </div>
-                <div className="border rounded-full px-3 py-1 text-center">
+                <div className="border border-cyan-100 bg-cyan-50/70 rounded-full px-3 py-1 text-center">
                   {property.address || "Address"}
                 </div>
               </div>
             </div>
 
-            <div className="bg-white border rounded-2xl p-6">
-              <h2 className="font-semibold text-gray-900">Owner</h2>
+            <div className="bg-white/70 backdrop-blur border border-white/60 rounded-3xl p-6">
+              <h2 className="font-semibold text-slate-900">Owner</h2>
               <div className="mt-3 flex items-center justify-between gap-4">
                 <div className="min-w-0">
-                  <div className="font-medium text-gray-900 truncate">
+                  <div className="font-medium text-slate-900 truncate">
                     {property.owner?.name || "-"}
                   </div>
-                  <div className="text-sm text-gray-600 truncate">
+                  <div className="text-sm text-slate-600 truncate">
                     {property.owner?.email || "-"}
                   </div>
                 </div>
@@ -184,7 +184,7 @@ export default function PublicPropertyDetailPage({
                       ? `https://wa.me/${String(property.owner.whatsapp).replace(/\D/g, "")}`
                       : "#"
                   }
-                  className="px-4 py-2 rounded-lg border hover:bg-gray-50 text-sm"
+                  className="px-4 py-2 rounded-xl border border-white/60 bg-white/70 backdrop-blur hover:bg-white text-sm"
                 >
                   WhatsApp
                 </a>
@@ -192,50 +192,50 @@ export default function PublicPropertyDetailPage({
             </div>
           </div>
 
-          <aside className="bg-white border rounded-2xl p-6 h-fit">
-            <div className="text-sm text-gray-600">Price</div>
-            <div className="mt-1 text-2xl font-bold text-gray-900">
+          <aside className="bg-white/70 backdrop-blur border border-white/60 rounded-3xl p-6 h-fit shadow-[0_20px_60px_-40px_rgba(13,148,136,0.35)]">
+            <div className="text-sm text-slate-600">Price</div>
+            <div className="mt-1 text-2xl font-semibold text-slate-900">
               {priceText}
             </div>
 
             <div className="mt-5 grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs text-gray-500 mb-1">Check-in</label>
+                <label className="block text-xs text-slate-500 mb-1">Check-in</label>
                 <input
                   type="date"
                   value={checkIn}
                   onChange={(e) => setCheckIn(e.target.value)}
-                  className="w-full border rounded-lg px-3 py-2"
+                  className="w-full border border-slate-200 rounded-xl px-3 py-2 bg-white/90 focus:outline-none focus:ring-4 focus:ring-cyan-200/50"
                 />
               </div>
               <div>
-                <label className="block text-xs text-gray-500 mb-1">Check-out</label>
+                <label className="block text-xs text-slate-500 mb-1">Check-out</label>
                 <input
                   type="date"
                   value={checkOut}
                   onChange={(e) => setCheckOut(e.target.value)}
-                  className="w-full border rounded-lg px-3 py-2"
+                  className="w-full border border-slate-200 rounded-xl px-3 py-2 bg-white/90 focus:outline-none focus:ring-4 focus:ring-cyan-200/50"
                 />
               </div>
             </div>
 
             <div className="mt-3 grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs text-gray-500 mb-1">Guests</label>
+                <label className="block text-xs text-slate-500 mb-1">Guests</label>
                 <input
                   type="number"
                   min={1}
                   value={guests}
                   onChange={(e) => setGuests(Number(e.target.value))}
-                  className="w-full border rounded-lg px-3 py-2"
+                  className="w-full border border-slate-200 rounded-xl px-3 py-2 bg-white/90 focus:outline-none focus:ring-4 focus:ring-cyan-200/50"
                 />
               </div>
               <div>
-                <label className="block text-xs text-gray-500 mb-1">Billing</label>
+                <label className="block text-xs text-slate-500 mb-1">Billing</label>
                 <select
                   value={billingType}
                   onChange={(e) => setBillingType(e.target.value as BillingType)}
-                  className="w-full border rounded-lg px-3 py-2 bg-white"
+                  className="w-full border border-slate-200 rounded-xl px-3 py-2 bg-white/90 focus:outline-none focus:ring-4 focus:ring-cyan-200/50"
                 >
                   <option value="MONTHLY">Monthly</option>
                   <option value="YEARLY">Yearly</option>
@@ -246,7 +246,7 @@ export default function PublicPropertyDetailPage({
             <button
               type="button"
               onClick={handleContinue}
-              className="mt-6 w-full bg-blue-600 text-white rounded-lg px-4 py-3 hover:bg-blue-700"
+              className="mt-6 w-full bg-cyan-700 text-white rounded-xl px-4 py-3 hover:bg-cyan-800 shadow-sm"
             >
               Continue
             </button>

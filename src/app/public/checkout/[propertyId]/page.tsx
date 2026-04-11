@@ -118,11 +118,11 @@ function CheckoutPageInner({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen">
         <PublicNavbar />
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
-          <div className="h-10 w-48 bg-white border rounded-lg" />
-          <div className="mt-6 h-96 bg-white border rounded-2xl" />
+          <div className="h-10 w-48 bg-white/70 backdrop-blur border border-white/60 rounded-xl" />
+          <div className="mt-6 h-96 bg-white/70 backdrop-blur border border-white/60 rounded-3xl" />
         </div>
       </div>
     );
@@ -130,11 +130,11 @@ function CheckoutPageInner({
 
   if (!property) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen">
         <PublicNavbar />
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
-          <div className="bg-white border rounded-xl p-6">
-            <div className="font-semibold">Property tidak ditemukan</div>
+          <div className="bg-white/70 backdrop-blur border border-white/60 rounded-3xl p-6">
+            <div className="font-semibold text-slate-900">Property tidak ditemukan</div>
           </div>
         </div>
       </div>
@@ -142,22 +142,24 @@ function CheckoutPageInner({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <PublicNavbar />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         <div className="flex items-center justify-between gap-4">
-          <h1 className="text-2xl font-bold text-gray-900">Order Details</h1>
+          <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900">
+            Order Details
+          </h1>
           <Link
             href={`/public/properties/${params.propertyId}`}
-            className="text-sm text-blue-600 hover:underline"
+            className="text-sm text-cyan-800 hover:text-cyan-900 hover:underline"
           >
             Kembali ke detail
           </Link>
         </div>
 
         <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <section className="lg:col-span-2 bg-white border rounded-2xl p-5 sm:p-6">
+          <section className="lg:col-span-2 bg-white/70 backdrop-blur border border-white/60 rounded-3xl p-5 sm:p-6 shadow-[0_20px_60px_-40px_rgba(2,132,199,0.25)]">
             {step === "DETAILS" && (
               <div className="space-y-5">
                 <div className="grid grid-cols-1 gap-3">
@@ -165,46 +167,46 @@ function CheckoutPageInner({
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Name"
-                    className="w-full border rounded-xl px-4 py-3"
+                    className="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white/90 focus:outline-none focus:ring-4 focus:ring-cyan-200/50"
                   />
                   <input
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Email"
-                    className="w-full border rounded-xl px-4 py-3"
+                    className="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white/90 focus:outline-none focus:ring-4 focus:ring-cyan-200/50"
                   />
                   <input
                     value={telephone}
                     onChange={(e) => setTelephone(e.target.value)}
                     placeholder="Telephone Number"
-                    className="w-full border rounded-xl px-4 py-3"
+                    className="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white/90 focus:outline-none focus:ring-4 focus:ring-cyan-200/50"
                   />
                 </div>
 
                 <div>
-                  <div className="font-semibold text-gray-900">Message</div>
+                  <div className="font-semibold text-slate-900">Message</div>
                   <textarea
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder="Tulis pesan untuk owner (opsional)"
                     rows={6}
-                    className="mt-2 w-full border rounded-xl px-4 py-3"
+                    className="mt-2 w-full border border-slate-200 rounded-xl px-4 py-3 bg-white/90 focus:outline-none focus:ring-4 focus:ring-cyan-200/50"
                   />
                 </div>
 
                 <button
                   type="button"
                   onClick={handleContinue}
-                  className="w-full bg-gray-800 text-white rounded-xl py-3 font-semibold hover:bg-gray-900"
+                  className="w-full bg-cyan-700 text-white rounded-xl py-3 font-semibold hover:bg-cyan-800 shadow-sm"
                 >
                   Continue Booking
                 </button>
 
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-slate-600">
                   Belum punya akun?{" "}
                   <Link
                     href={`/auth/register?redirect=${encodeURIComponent(currentUrl)}`}
-                    className="text-blue-600 hover:underline"
+                    className="text-cyan-800 hover:text-cyan-900 hover:underline"
                   >
                     Registrasi
                   </Link>
@@ -214,26 +216,27 @@ function CheckoutPageInner({
 
             {step === "PAYMENT" && (
               <div className="space-y-4">
-                <div className="font-semibold text-gray-900">Pembayaran</div>
-                <div className="text-sm text-gray-600">
-                  Ini simulasi pembayaran. Klik tombol di bawah untuk menyelesaikan.
+                <div className="font-semibold text-slate-900">Pembayaran</div>
+                <div className="text-sm text-slate-600">
+                  Ini simulasi pembayaran. Kalau sudah cocok, lanjutkan untuk
+                  menyelesaikan.
                 </div>
 
-                <div className="border rounded-xl p-4 text-sm text-gray-700 space-y-1">
+                <div className="border border-white/60 bg-white/70 backdrop-blur rounded-2xl p-4 text-sm text-slate-700 space-y-1">
                   <div>
-                    <span className="text-gray-500">Property: </span>
+                    <span className="text-slate-500">Property: </span>
                     {property.name}
                   </div>
                   <div>
-                    <span className="text-gray-500">Tanggal: </span>
+                    <span className="text-slate-500">Tanggal: </span>
                     {checkIn} → {checkOut}
                   </div>
                   <div>
-                    <span className="text-gray-500">Guests: </span>
+                    <span className="text-slate-500">Guests: </span>
                     {guests}
                   </div>
                   <div>
-                    <span className="text-gray-500">Billing: </span>
+                    <span className="text-slate-500">Billing: </span>
                     {billingType}
                   </div>
                   <div className="font-semibold pt-2">
@@ -244,7 +247,7 @@ function CheckoutPageInner({
                 <button
                   type="button"
                   onClick={() => setStep("SUCCESS")}
-                  className="w-full bg-blue-600 text-white rounded-xl py-3 font-semibold hover:bg-blue-700"
+                  className="w-full bg-emerald-600 text-white rounded-xl py-3 font-semibold hover:bg-emerald-700 shadow-sm"
                 >
                   Pay Now
                 </button>
@@ -253,21 +256,21 @@ function CheckoutPageInner({
 
             {step === "SUCCESS" && (
               <div className="space-y-4">
-                <div className="font-semibold text-gray-900">Berhasil</div>
-                <div className="text-sm text-gray-600">
+                <div className="font-semibold text-slate-900">Berhasil</div>
+                <div className="text-sm text-slate-600">
                   Booking berhasil dibuat dan pembayaran selesai (simulasi). Owner akan
-                  menerima inquiry kamu.
+                  menerima inquiry kamu, lalu menghubungi untuk konfirmasi.
                 </div>
                 <div className="flex gap-3">
                   <Link
                     href="/public/properties"
-                    className="px-4 py-2 rounded-lg border hover:bg-gray-50 text-sm"
+                    className="px-4 py-2 rounded-xl border border-white/60 bg-white/70 backdrop-blur hover:bg-white text-sm"
                   >
                     Cari villa lain
                   </Link>
                   <Link
                     href="/"
-                    className="px-4 py-2 rounded-lg bg-gray-900 text-white hover:bg-gray-800 text-sm"
+                    className="px-4 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm"
                   >
                     Kembali ke Home
                   </Link>
@@ -276,32 +279,32 @@ function CheckoutPageInner({
             )}
           </section>
 
-          <aside className="bg-white border rounded-2xl p-5 sm:p-6 h-fit">
-            <div className="font-semibold text-gray-900">Ringkasan</div>
-            <div className="mt-3 text-sm text-gray-600 space-y-1">
-              <div className="font-medium text-gray-900">{property.name}</div>
+          <aside className="bg-white/70 backdrop-blur border border-white/60 rounded-3xl p-5 sm:p-6 h-fit shadow-[0_20px_60px_-40px_rgba(13,148,136,0.25)]">
+            <div className="font-semibold text-slate-900">Ringkasan</div>
+            <div className="mt-3 text-sm text-slate-600 space-y-1">
+              <div className="font-medium text-slate-900">{property.name}</div>
               <div>
                 {property.city}, {property.province}
               </div>
               <div>
-                <span className="text-gray-500">Check-in: </span>
+                <span className="text-slate-500">Check-in: </span>
                 {checkIn}
               </div>
               <div>
-                <span className="text-gray-500">Check-out: </span>
+                <span className="text-slate-500">Check-out: </span>
                 {checkOut}
               </div>
               <div>
-                <span className="text-gray-500">Guests: </span>
+                <span className="text-slate-500">Guests: </span>
                 {guests}
               </div>
               <div>
-                <span className="text-gray-500">Billing: </span>
+                <span className="text-slate-500">Billing: </span>
                 {billingType}
               </div>
-              <div className="pt-3 text-base font-bold text-gray-900">
+              <div className="pt-3 text-base font-semibold text-slate-900">
                 IDR {price.toLocaleString("id-ID")}
-                <span className="text-sm font-normal text-gray-600">
+                <span className="text-sm font-normal text-slate-600">
                   {billingType === "MONTHLY" ? "/Mo" : "/Yr"}
                 </span>
               </div>
