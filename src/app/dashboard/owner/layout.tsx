@@ -71,8 +71,24 @@ export default function OwnerDashboardLayout({
 
   const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
     return (
-      <aside className="relative h-full w-64 bg-white border-r flex flex-col">
-        <div className="p-6 text-xl font-bold text-blue-600">VillaBook</div>
+      <aside className="relative h-full w-64 bg-white/70 backdrop-blur border-r border-white/60 flex flex-col">
+        <div className="p-6 flex items-center gap-2">
+          <span className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-cyan-900 text-white shadow-sm">
+            <svg
+              viewBox="0 0 24 24"
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M3 20c2-2 4-2 6 0s4 2 6 0 4-2 6 0" />
+              <path d="M3 16c2-2 4-2 6 0s4 2 6 0 4-2 6 0" />
+            </svg>
+          </span>
+          <div className="text-lg font-semibold text-slate-900">VillaBook</div>
+        </div>
 
         <nav className="flex-1 px-4 space-y-1">
           {menu.map((item) => {
@@ -84,10 +100,10 @@ export default function OwnerDashboardLayout({
                 key={item.href}
                 href={item.href}
                 onClick={onNavigate}
-                className={`block px-4 py-2 rounded-lg transition ${
+                className={`block px-4 py-2 rounded-xl transition ${
                   isActive
-                    ? "bg-blue-50 text-blue-600 font-semibold"
-                    : "text-gray-700 hover:bg-gray-100"
+                    ? "bg-cyan-50 text-cyan-800 font-semibold border border-cyan-100"
+                    : "text-slate-700 hover:bg-white/60 hover:text-slate-900"
                 }`}
               >
                 {item.label}
@@ -96,14 +112,14 @@ export default function OwnerDashboardLayout({
           })}
         </nav>
 
-        <div className="p-4 border-t">
+        <div className="p-4 border-t border-white/60">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center font-semibold text-gray-700">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-cyan-700 to-sky-700 flex items-center justify-center font-semibold text-white shadow-sm">
               {initials} 
             </div>
             <div>
-              <p className="text-sm font-semibold">{displayName}</p>
-              <p className="text-xs text-gray-500">
+              <p className="text-sm font-semibold text-slate-900">{displayName}</p>
+              <p className="text-xs text-slate-600">
                 {authUser?.role === "ADMIN" ? "Admin" : "Property Owner"}
               </p>
             </div>
@@ -111,7 +127,7 @@ export default function OwnerDashboardLayout({
 
           <button
             onClick={handleLogout}
-            className="w-full text-sm text-red-500 border border-red-300 rounded-lg py-2 hover:bg-red-50 transition"
+            className="w-full text-sm text-rose-600 border border-rose-200 bg-white/70 rounded-xl py-2 hover:bg-rose-50 transition"
           >
             Logout
           </button>
@@ -121,7 +137,7 @@ export default function OwnerDashboardLayout({
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex min-h-screen">
       <div className="hidden lg:block">
         <Sidebar />
       </div>
@@ -139,14 +155,18 @@ export default function OwnerDashboardLayout({
       )}
 
       {/* ================= MAIN CONTENT ================= */}
-      <main className="flex-1 flex flex-col">
+      <main className="relative flex-1 flex flex-col">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -top-24 -left-24 w-72 h-72 rounded-full bg-cyan-200/40 blur-3xl" />
+          <div className="absolute -bottom-28 -right-20 w-96 h-96 rounded-full bg-sky-200/40 blur-3xl" />
+        </div>
         {/* Topbar */}
-        <header className="bg-white border-b px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3">
+        <header className="relative bg-white/70 backdrop-blur border-b border-white/60 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
             <button
               type="button"
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg border border-gray-200 hover:bg-gray-50"
+              className="lg:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl border border-white/60 bg-white/60 hover:bg-white transition"
               aria-label="Buka menu"
             >
               <svg
@@ -161,7 +181,7 @@ export default function OwnerDashboardLayout({
               </svg>
             </button>
 
-            <h1 className="text-base sm:text-lg font-semibold truncate">
+            <h1 className="text-base sm:text-lg font-semibold truncate text-slate-900">
               {pageTitle}
             </h1>
           </div>
@@ -170,7 +190,7 @@ export default function OwnerDashboardLayout({
         </header>
 
         {/* Page Content */}
-        <section className="flex-1 p-4 sm:p-6">
+        <section className="relative flex-1 p-4 sm:p-6">
           {children}
         </section>
       </main>

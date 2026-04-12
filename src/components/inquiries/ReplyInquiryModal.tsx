@@ -27,7 +27,7 @@ export default function ReplyInquiryModal({
 
     return (
         <Modal open={open} onClose={onClose} title="Balas Inquiry">
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-slate-600 mb-4">
                 Kepada: <strong>{inquiryName}</strong>
             </p>
 
@@ -36,13 +36,13 @@ export default function ReplyInquiryModal({
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Ketik pesan balasan..."
                 rows={5}
-                className="w-full border rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-slate-200 rounded-xl p-3 text-sm bg-white/90 focus:outline-none focus:ring-4 focus:ring-cyan-200/50"
             />
 
             <div className="flex justify-end gap-3 mt-4">
                 <button
                     onClick={handleSend}
-                    className="px-4 py-2 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+                    className="px-4 py-2 text-sm rounded-xl bg-cyan-700 text-white hover:bg-cyan-800 shadow-sm"
                 >
                 Kirim
                 </button>

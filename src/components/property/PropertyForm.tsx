@@ -91,10 +91,10 @@ export default function PropertyForm({
 
 
     return (
-    <div className="flex justify-center py-10">
-        <div className="w-full max-w-5xl bg-white p-10 rounded-3xl shadow-lg border">
+    <div className="flex justify-center px-4 py-6 sm:py-10">
+        <div className="w-full max-w-5xl bg-white/70 backdrop-blur p-5 sm:p-10 rounded-3xl shadow-[0_20px_60px_-40px_rgba(2,132,199,0.25)] border border-white/60">
 
-        <h1 className="text-3xl font-bold mb-10 text-gray-800">
+        <h1 className="text-2xl sm:text-3xl font-semibold mb-8 sm:mb-10 text-slate-900">
             {isEdit ? "Edit Property" : "Add New Property"}
         </h1>
 
@@ -106,16 +106,16 @@ export default function PropertyForm({
                 Basic Information
             </h2>
 
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
 
                 {/* Property Name */}
-                <div className="border border-gray-300 rounded-2xl p-4 focus-within:border-blue-500 transition">
+                <div className="border border-slate-200 bg-white/80 rounded-2xl p-4 focus-within:border-cyan-600 focus-within:ring-4 focus-within:ring-cyan-200/40 transition">
                 <label className="block text-xs font-semibold text-gray-500 uppercase mb-2">
                     Property Name
                 </label>
                 <input
                     name="name"
-                    placeholder="Your villa"
+                    placeholder="Contoh: Villa Ocean Breeze"
                     value={form.name}
                     onChange={handleChange}
                     className="w-full outline-none bg-transparent"
@@ -124,12 +124,13 @@ export default function PropertyForm({
                 </div>
 
                 {/* Type */}
-                <div className="border border-gray-300 rounded-2xl p-4 focus-within:border-blue-500 transition">
+                <div className="border border-slate-200 bg-white/80 rounded-2xl p-4 focus-within:border-cyan-600 focus-within:ring-4 focus-within:ring-cyan-200/40 transition">
                 <label className="block text-xs font-semibold text-gray-500 uppercase mb-2">
                     Type
                 </label>
                 <input
                     name="type"
+                    placeholder="Contoh: Villa"
                     value={form.type}
                     onChange={handleChange}
                     className="w-full outline-none bg-transparent"
@@ -138,12 +139,13 @@ export default function PropertyForm({
                 </div>
 
                 {/* Province */}
-                <div className="border border-gray-300 rounded-2xl p-4 focus-within:border-blue-500 transition">
+                <div className="border border-slate-200 bg-white/80 rounded-2xl p-4 focus-within:border-cyan-600 focus-within:ring-4 focus-within:ring-cyan-200/40 transition">
                 <label className="block text-xs font-semibold text-gray-500 uppercase mb-2">
                     Province
                 </label>
                 <input
                     name="province"
+                    placeholder="Contoh: Bali"
                     value={form.province}
                     onChange={handleChange}
                     className="w-full outline-none bg-transparent"
@@ -152,12 +154,13 @@ export default function PropertyForm({
                 </div>
 
                 {/* City */}
-                <div className="border border-gray-300 rounded-2xl p-4 focus-within:border-blue-500 transition">
+                <div className="border border-slate-200 bg-white/80 rounded-2xl p-4 focus-within:border-cyan-600 focus-within:ring-4 focus-within:ring-cyan-200/40 transition">
                 <label className="block text-xs font-semibold text-gray-500 uppercase mb-2">
                     City
                 </label>
                 <input
                     name="city"
+                    placeholder="Contoh: Ubud"
                     value={form.city}
                     onChange={handleChange}
                     className="w-full outline-none bg-transparent"
@@ -166,12 +169,13 @@ export default function PropertyForm({
                 </div>
 
                 {/* Address */}
-                <div className="col-span-2 border border-gray-300 rounded-2xl p-4 focus-within:border-blue-500 transition">
+                <div className="sm:col-span-2 border border-slate-200 bg-white/80 rounded-2xl p-4 focus-within:border-cyan-600 focus-within:ring-4 focus-within:ring-cyan-200/40 transition">
                 <label className="block text-xs font-semibold text-gray-500 uppercase mb-2">
                     Address
                 </label>
                 <input
                     name="address"
+                    placeholder="Contoh: Jl. Pantai No. 24"
                     value={form.address}
                     onChange={handleChange}
                     className="w-full outline-none bg-transparent"
@@ -179,12 +183,13 @@ export default function PropertyForm({
                 </div>
 
                 {/* Thumbnail URL */}
-                <div className="col-span-2 border border-gray-300 rounded-2xl p-4 focus-within:border-blue-500 transition">
+                <div className="sm:col-span-2 border border-slate-200 bg-white/80 rounded-2xl p-4 focus-within:border-cyan-600 focus-within:ring-4 focus-within:ring-cyan-200/40 transition">
                 <label className="block text-xs font-semibold text-gray-500 uppercase mb-2">
                     Thumbnail URL
                 </label>
                 <input
                     name="thumbnailUrl"
+                    placeholder="https://..."
                     value={form.thumbnailUrl}
                     onChange={handleChange}
                     className="w-full outline-none bg-transparent"
@@ -201,12 +206,12 @@ export default function PropertyForm({
                 Room & Pricing
             </h2>
 
-            <div className="grid grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
 
                 {["totalRoom", "bedroom", "bathroom"].map((field) => (
                 <div
                     key={field}
-                    className="border border-gray-300 rounded-2xl p-4 focus-within:border-blue-500 transition"
+                    className="border border-slate-200 bg-white/80 rounded-2xl p-4 focus-within:border-cyan-600 focus-within:ring-4 focus-within:ring-cyan-200/40 transition"
                 >
                     <label className="block text-xs font-semibold text-gray-500 uppercase mb-2">
                     {field === "totalRoom"
@@ -218,6 +223,7 @@ export default function PropertyForm({
                     name={field}
                     value={(form as any)[field]}
                     onChange={handleChange}
+                    placeholder={field === "totalRoom" ? "3" : field === "bedroom" ? "2" : "1"}
                     className="w-full outline-none bg-transparent"
                     required
                     />
@@ -227,7 +233,7 @@ export default function PropertyForm({
                 {["priceMonthly", "priceYearly"].map((field) => (
                 <div
                     key={field}
-                    className="border border-gray-300 rounded-2xl p-4 focus-within:border-blue-500 transition"
+                    className="border border-slate-200 bg-white/80 rounded-2xl p-4 focus-within:border-cyan-600 focus-within:ring-4 focus-within:ring-cyan-200/40 transition"
                 >
                     <label className="block text-xs font-semibold text-gray-500 uppercase mb-2">
                     {field === "priceMonthly"
@@ -239,6 +245,7 @@ export default function PropertyForm({
                     name={field}
                     value={(form as any)[field]}
                     onChange={handleChange}
+                    placeholder={field === "priceMonthly" ? "7500000" : "90000000"}
                     className="w-full outline-none bg-transparent"
                     required
                     />
@@ -255,7 +262,7 @@ export default function PropertyForm({
                 Property Photos
             </h2>
 
-            <div className="border-2 border-dashed border-blue-300 rounded-2xl p-10 text-center">
+            <div className="border-2 border-dashed border-cyan-300 bg-white/60 rounded-2xl p-6 sm:p-10 text-center">
                 <input
                 type="file"
                 multiple
@@ -278,14 +285,14 @@ export default function PropertyForm({
 
                 <label
                 htmlFor="photoUpload"
-                className="cursor-pointer text-blue-600 font-semibold"
+                className="cursor-pointer text-cyan-800 hover:text-cyan-900 font-semibold"
                 >
                 Click to upload photo
                 </label>
             </div>
 
             {previewImages.length > 0 && (
-                <div className="grid grid-cols-4 gap-4 mt-6">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
                 {previewImages.map((src, index) => (
                     <img
                     key={index}
@@ -305,11 +312,12 @@ export default function PropertyForm({
                 Description
             </h2>
 
-            <div className="border border-gray-300 rounded-2xl p-4 focus-within:border-blue-500 transition">
+            <div className="border border-slate-200 bg-white/80 rounded-2xl p-4 focus-within:border-cyan-600 focus-within:ring-4 focus-within:ring-cyan-200/40 transition">
                 <textarea
                 name="description"
                 value={form.description}
                 onChange={handleChange}
+                placeholder="Ceritakan suasana villa, view, akses, dan fasilitas unggulan..."
                 rows={5}
                 className="w-full outline-none bg-transparent resize-none"
                 required
@@ -321,7 +329,7 @@ export default function PropertyForm({
             {/* SUBMIT */}
             <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-4 rounded-2xl text-lg font-semibold hover:bg-blue-700 transition"
+            className="w-full bg-cyan-700 text-white py-4 rounded-2xl text-lg font-semibold hover:bg-sky-700 transition shadow-sm"
             >
             Create Property
             </button>
