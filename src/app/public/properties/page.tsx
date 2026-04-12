@@ -167,7 +167,7 @@ function PublicPropertiesPageInner() {
               setPage(1);
               router.push("/public/properties");
             }}
-            className="md:col-span-2 w-full border border-white/60 bg-white/70 backdrop-blur rounded-xl px-4 py-3 hover:bg-white"
+            className="md:col-span-2 w-full border border-slate-200 bg-white/80 backdrop-blur rounded-xl px-4 py-3 text-slate-700 hover:bg-white hover:border-slate-300 hover:text-slate-900 transition shadow-sm"
           >
             Reset
           </button>

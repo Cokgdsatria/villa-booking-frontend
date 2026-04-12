@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import PublicNavbar from "@/components/navigation/PublicNavbar";
 import { getPropertyDetail } from "@/services/property.service";
@@ -49,6 +49,83 @@ export default function PublicPropertyDetailPage({
     return `IDR ${Number(price || 0).toLocaleString("id-ID")}${suffix}`;
   }, [billingType, property]);
 
+  const photos = useMemo(() => {
+    return Array.isArray(property?.photos) ? property.photos : [];
+  }, [property]);
+
+  const galleryUrls = useMemo(() => {
+    const raw = [
+      property?.thumbnailUrl,
+      ...photos.map((p: any) => p?.url).filter(Boolean),
+    ]
+      .map((u) => resolveAssetUrl(u))
+      .filter(Boolean) as string[];
+
+    const seen = new Set<string>();
+    const unique: string[] = [];
+    for (const u of raw) {
+      if (seen.has(u)) continue;
+      seen.add(u);
+      unique.push(u);
+    }
+    return unique;
+  }, [photos, property?.thumbnailUrl]);
+
+  const mapQuery = useMemo(() => {
+    const parts = [
+      property?.name,
+      property?.address,
+      property?.city,
+      property?.province,
+    ].filter(Boolean);
+    return parts.join(", ");
+  }, [property?.address, property?.city, property?.name, property?.province]);
+
+  const googleMapsLink = useMemo(() => {
+    if (!mapQuery) return null;
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+      mapQuery
+    )}`;
+  }, [mapQuery]);
+
+  const googleMapsEmbed = useMemo(() => {
+    if (!mapQuery) return null;
+    return `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed`;
+  }, [mapQuery]);
+
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [activePhotoIndex, setActivePhotoIndex] = useState(0);
+  const galleryStripRef = useRef<HTMLDivElement | null>(null);
+  const gallerySlideRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const galleryOpenIndexRef = useRef(0);
+
+  useEffect(() => {
+    if (!galleryOpen) return;
+    const slideEl = gallerySlideRefs.current[galleryOpenIndexRef.current];
+    if (!slideEl) return;
+    const id = window.setTimeout(() => {
+      slideEl.scrollIntoView({ behavior: "auto", inline: "start", block: "nearest" });
+    }, 0);
+    return () => window.clearTimeout(id);
+  }, [galleryOpen]);
+
+  const scrollToGalleryIndex = (idx: number, behavior: ScrollBehavior = "smooth") => {
+    const next = Math.max(0, Math.min(galleryUrls.length - 1, idx));
+    setActivePhotoIndex(next);
+    window.requestAnimationFrame(() => {
+      const slideEl = gallerySlideRefs.current[next];
+      if (slideEl) {
+        slideEl.scrollIntoView({ behavior, inline: "start", block: "nearest" });
+        return;
+      }
+      const el = galleryStripRef.current;
+      if (!el) return;
+      const width = el.getBoundingClientRect().width || el.clientWidth;
+      if (!width) return;
+      el.scrollTo({ left: next * width, behavior });
+    });
+  };
+
   const handleContinue = () => {
     const paramsQS = new URLSearchParams();
     paramsQS.set("checkIn", checkIn);
@@ -86,8 +163,6 @@ export default function PublicPropertyDetailPage({
     );
   }
 
-  const photos = Array.isArray(property.photos) ? property.photos : [];
-
   return (
     <div className="min-h-screen">
       <PublicNavbar />
@@ -106,7 +181,7 @@ export default function PublicPropertyDetailPage({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-2 p-2">
                 <div className="md:col-span-2 h-64 bg-gray-100 rounded-xl overflow-hidden">
                   <img
-                    src={resolveAssetUrl(property.thumbnailUrl) || "/images/villa-1.jpg"}
+                    src={galleryUrls[0] || "/images/villa-1.jpg"}
                     alt={property.name}
                     className="w-full h-full object-cover"
                     loading="lazy"
@@ -116,13 +191,10 @@ export default function PublicPropertyDetailPage({
                   />
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-1 gap-2">
-                  {photos.slice(0, 2).map((ph: any) => (
-                    <div
-                      key={ph.id}
-                      className="h-32 bg-gray-100 rounded-xl overflow-hidden"
-                    >
+                  <div className="h-32 bg-gray-100 rounded-xl overflow-hidden">
+                    {galleryUrls[1] ? (
                       <img
-                        src={resolveAssetUrl(ph.url) || "/images/villa-2.jpg"}
+                        src={galleryUrls[1]}
                         alt="Photo"
                         className="w-full h-full object-cover"
                         loading="lazy"
@@ -130,17 +202,138 @@ export default function PublicPropertyDetailPage({
                           e.currentTarget.src = "/images/villa-2.jpg";
                         }}
                       />
+                    ) : (
+                      <div className="w-full h-full bg-gray-100" />
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (galleryUrls.length === 0) return;
+                      const initialIndex = Math.min(2, galleryUrls.length - 1);
+                      galleryOpenIndexRef.current = initialIndex;
+                      setActivePhotoIndex(initialIndex);
+                      setGalleryOpen(true);
+                    }}
+                    className="relative h-32 bg-gray-100 rounded-xl overflow-hidden text-left"
+                    disabled={galleryUrls.length === 0}
+                  >
+                    {galleryUrls[2] ? (
+                      <img
+                        src={galleryUrls[2]}
+                        alt="Photo"
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                        onError={(e) => {
+                          e.currentTarget.src = "/images/villa-3.jpg";
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-100" />
+                    )}
+                    <div className="absolute inset-0 bg-slate-900/35" />
+                    <div className="absolute inset-0 p-3 flex items-end justify-between">
+                      <div className="text-white">
+                        <div className="text-sm font-semibold">Lihat semua foto</div>
+                        <div className="text-xs text-white/90">
+                          {galleryUrls.length} foto
+                        </div>
+                      </div>
+                      {galleryUrls.length > 3 && (
+                        <div className="text-xs font-semibold px-2.5 py-1 rounded-full bg-white/20 border border-white/30 text-white">
+                          +{galleryUrls.length - 3}
+                        </div>
+                      )}
                     </div>
-                  ))}
-                  {photos.length === 0 && (
-                    <>
-                      <div className="h-32 bg-gray-100 rounded-xl" />
-                      <div className="h-32 bg-gray-100 rounded-xl" />
-                    </>
-                  )}
+                  </button>
                 </div>
               </div>
             </div>
+
+            {galleryOpen && (
+              <div className="fixed inset-0 z-50">
+                <div
+                  className="absolute inset-0 bg-black/60"
+                  onClick={() => setGalleryOpen(false)}
+                />
+                <div className="absolute inset-0 flex items-center justify-center p-4">
+                  <div className="w-full max-w-5xl bg-white/80 backdrop-blur border border-white/60 rounded-3xl overflow-hidden shadow-2xl">
+                    <div className="px-5 sm:px-6 py-4 border-b border-white/40 flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="font-semibold text-slate-900 truncate">
+                          {property.name}
+                        </div>
+                        <div className="text-sm text-slate-600">
+                          Foto {activePhotoIndex + 1} / {galleryUrls.length}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setGalleryOpen(false)}
+                          className="px-3 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm"
+                        >
+                          Close
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="p-4 sm:p-6">
+                      <div
+                        ref={galleryStripRef}
+                        className="flex overflow-x-auto snap-x snap-proximity rounded-2xl overscroll-x-contain"
+                        onScroll={(e) => {
+                          const el = e.currentTarget;
+                          const width = el.getBoundingClientRect().width || el.clientWidth;
+                          if (!width) return;
+                          const rawIdx = Math.round(el.scrollLeft / width);
+                          const idx = Math.max(0, Math.min(galleryUrls.length - 1, rawIdx));
+                          if (idx !== activePhotoIndex) setActivePhotoIndex(idx);
+                        }}
+                      >
+                        {galleryUrls.map((url, idx) => (
+                          <div
+                            key={url + idx}
+                            ref={(el) => {
+                              gallerySlideRefs.current[idx] = el;
+                            }}
+                            className="snap-start shrink-0 w-full"
+                          >
+                            <div className="h-[60vh] min-h-[320px] bg-slate-100 rounded-2xl overflow-hidden">
+                              <img
+                                src={url}
+                                alt={`Photo ${idx + 1}`}
+                                className="w-full h-full object-contain bg-slate-100"
+                                loading="lazy"
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="mt-4 flex items-center justify-center gap-2">
+                        {galleryUrls.map((_, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => {
+                              scrollToGalleryIndex(idx);
+                            }}
+                            className={`h-2.5 rounded-full transition-all ${
+                              idx === activePhotoIndex
+                                ? "w-6 bg-cyan-800"
+                                : "w-2.5 bg-slate-300"
+                            }`}
+                            aria-label={`Photo ${idx + 1}`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="bg-white/70 backdrop-blur border border-white/60 rounded-3xl p-6">
               <h2 className="font-semibold text-slate-900">About This Space</h2>
@@ -148,7 +341,7 @@ export default function PublicPropertyDetailPage({
                 {property.description}
               </p>
 
-              <div className="mt-6 grid grid-cols-3 sm:grid-cols-5 gap-2 text-xs text-slate-700">
+              <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-slate-700">
                 <div className="border border-cyan-100 bg-cyan-50/70 rounded-full px-3 py-1 text-center">
                   {property.totalRoom} Room
                 </div>
@@ -161,9 +354,63 @@ export default function PublicPropertyDetailPage({
                 <div className="border border-cyan-100 bg-cyan-50/70 rounded-full px-3 py-1 text-center">
                   {property.type}
                 </div>
-                <div className="border border-cyan-100 bg-cyan-50/70 rounded-full px-3 py-1 text-center">
-                  {property.address || "Address"}
+              </div>
+
+              <div className="mt-8 border-t border-white/40 pt-6">
+                <h3 className="font-semibold text-slate-900">Popular Facilities</h3>
+                <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-700">
+                  <div className="border border-emerald-100 bg-emerald-50/70 rounded-full px-3 py-1">
+                    Wi-Fi
+                  </div>
+                  <div className="border border-emerald-100 bg-emerald-50/70 rounded-full px-3 py-1">
+                    Air Conditioning
+                  </div>
+                  <div className="border border-emerald-100 bg-emerald-50/70 rounded-full px-3 py-1">
+                    Kitchen
+                  </div>
+                  <div className="border border-emerald-100 bg-emerald-50/70 rounded-full px-3 py-1">
+                    Parking
+                  </div>
+                  <div className="border border-emerald-100 bg-emerald-50/70 rounded-full px-3 py-1">
+                    Swimming Pool
+                  </div>
+                  <div className="border border-emerald-100 bg-emerald-50/70 rounded-full px-3 py-1">
+                    {property.bedroom} Bedrooms
+                  </div>
+                  <div className="border border-emerald-100 bg-emerald-50/70 rounded-full px-3 py-1">
+                    {property.bathroom} Bathrooms
+                  </div>
                 </div>
+              </div>
+
+              <div className="mt-8 border-t border-white/40 pt-6">
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="font-semibold text-slate-900">Location</h3>
+                  {googleMapsLink && (
+                    <a
+                      href={googleMapsLink}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-sm px-3 py-2 rounded-xl bg-cyan-700 text-white hover:bg-cyan-800"
+                    >
+                      Buka Google Maps
+                    </a>
+                  )}
+                </div>
+                <div className="mt-2 text-sm text-slate-600">
+                  {mapQuery || "-"}
+                </div>
+
+                {googleMapsEmbed && (
+                  <div className="mt-4 overflow-hidden rounded-2xl border border-white/60 bg-white/60">
+                    <iframe
+                      src={googleMapsEmbed}
+                      className="w-full h-64"
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                    />
+                  </div>
+                )}
               </div>
             </div>
 

@@ -51,13 +51,12 @@ export const getOwnerProperties = async () => {
 
 export const uploadPropertyPhotos = async (
   propertyId: string,
-  files: FileList
+  files: FileList | File[]
 ) => {
   const formData = new FormData();
 
-  for (let i = 0; i < files.length; i++) {
-    formData.append("photos", files[i]);
-  }
+  const list = Array.isArray(files) ? files : Array.from(files);
+  for (const file of list) formData.append("photos", file);
 
   const res = await api.post(
     `/properties/${propertyId}/photos`,
