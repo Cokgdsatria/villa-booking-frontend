@@ -94,35 +94,42 @@ export default function OwnerDashboardPage() {
             {/*DASHBOARD STATS */}
             {stats && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                    <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border">
-                        <p className="text-sm text-gray-500">Total Revenue</p>
-                        <h3 className="text-2xl sm:text-3xl font-bold mt-1">IDR {stats.totalRevenue}</h3>
+                    <div className="bg-white/70 backdrop-blur rounded-3xl p-4 sm:p-6 shadow-[0_20px_60px_-40px_rgba(2,132,199,0.25)] border border-white/60">
+                        <p className="text-sm text-slate-600">Total Revenue</p>
+                        <h3 className="text-2xl sm:text-3xl font-semibold mt-1 text-slate-900">
+                            IDR {stats.totalRevenue}
+                        </h3>
                     </div>
 
-                    <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border">
-                        <p className="text-sm text-gray-500">Total Bookings</p>
-                        <h3 className="text-2xl font-bold mt-1">{stats.totalBookings}</h3>
+                    <div className="bg-white/70 backdrop-blur rounded-3xl p-4 sm:p-6 shadow-[0_20px_60px_-40px_rgba(13,148,136,0.22)] border border-white/60">
+                        <p className="text-sm text-slate-600">Total Bookings</p>
+                        <h3 className="text-2xl font-semibold mt-1 text-slate-900">{stats.totalBookings}</h3>
                     </div>
 
-                    <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border">
-                        <p className="text-sm text-gray-500">Total Inquiries</p>
-                        <h3 className="text-2xl font-bold mt-1">{stats.totalInquiries}</h3>
+                    <div className="bg-white/70 backdrop-blur rounded-3xl p-4 sm:p-6 shadow-[0_20px_60px_-40px_rgba(2,132,199,0.25)] border border-white/60">
+                        <p className="text-sm text-slate-600">Total Inquiries</p>
+                        <h3 className="text-2xl font-semibold mt-1 text-slate-900">{stats.totalInquiries}</h3>
                     </div>
 
-                    <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border">
-                        <p className="text-sm text-gray-500">Avg Rating</p>
-                        <h3 className="text-2xl font-bold mt-1">{stats.avgRating}</h3> 
+                    <div className="bg-white/70 backdrop-blur rounded-3xl p-4 sm:p-6 shadow-[0_20px_60px_-40px_rgba(13,148,136,0.22)] border border-white/60">
+                        <p className="text-sm text-slate-600">Avg Rating</p>
+                        <h3 className="text-2xl font-semibold mt-1 text-slate-900">{stats.avgRating}</h3> 
                     </div>
                 </div>
             )}
 
             {/* == INQUIRIES LIST == */}
-            <div className="bg-white rounded-xl shadow-sm border">
-                <div className="flex flex-wrap justify-between items-center gap-2 p-4 sm:p-6 border-b">
-                    <h2 className="text-lg font-semibold">Inquiries Terbaru</h2>
+            <div className="bg-white/70 backdrop-blur rounded-3xl shadow-[0_20px_60px_-40px_rgba(2,132,199,0.22)] border border-white/60 overflow-hidden">
+                <div className="flex flex-wrap justify-between items-center gap-2 p-4 sm:p-6 border-b border-white/60">
+                    <div>
+                        <h2 className="text-lg font-semibold text-slate-900">Inquiries Terbaru</h2>
+                        <p className="text-sm text-slate-600 mt-1">
+                            Pesan terbaru dari calon tamu, siap kamu balas dengan cepat.
+                        </p>
+                    </div>
                     <Link
                         href="/dashboard/owner/inquiries"
-                        className="text-sm text-blue-600 hover:underline"
+                        className="text-sm text-cyan-800 hover:text-cyan-900 hover:underline"
                     >
                         Lihat Semua
                     </Link>
@@ -134,23 +141,23 @@ export default function OwnerDashboardPage() {
                             key={inq.id}
                             href={`/dashboard/owner/inquiries/${inq.id}`}
                         >
-                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 sm:p-6 cursor-pointer hover:bg-gray-200 transition">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 sm:p-6 cursor-pointer hover:bg-white/60 transition">
                                 <div className="min-w-0">
-                                    <p className="font-medium truncate">{inq.name}</p>
-                                    <p className="text-sm text-gray-500 truncate">{inq.property}</p>
-                                    <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                                    <p className="font-medium text-slate-900 truncate">{inq.name}</p>
+                                    <p className="text-sm text-slate-600 truncate">{inq.property}</p>
+                                    <p className="text-sm text-slate-600 mt-1 line-clamp-2">
                                         {inq.message}
                                     </p>
                                 </div>
 
                                 <div className="flex flex-wrap items-center gap-2 sm:gap-4 justify-between sm:justify-end">
-                                    <span className="text-sm text-gray-500 whitespace-nowrap">{inq.date}</span>
+                                    <span className="text-sm text-slate-600 whitespace-nowrap">{inq.date}</span>
 
                                     <span
                                         className={`text-xs px-3 py-1 rounded-full whitespace-nowrap ${
                                             inq.status === "PENDING"
-                                            ? "bg-red-100 text-red-600"
-                                            : "bg-green-100 text-green-600"
+                                            ? "bg-rose-50 text-rose-700 border border-rose-100"
+                                            : "bg-emerald-50 text-emerald-700 border border-emerald-100"
                                         }`}
                                     >
                                         {inq.status === "PENDING"
@@ -164,10 +171,10 @@ export default function OwnerDashboardPage() {
                                             handleReply(inq)
                                         }}
                                         disabled={inq.status === "RESPONDED"}
-                                        className={`text-sm px-4 py-2 rounded-lg transition w-full sm:w-auto ${
+                                        className={`text-sm px-4 py-2 rounded-xl transition w-full sm:w-auto ${
                                             inq.status === "RESPONDED"
-                                                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                                : "bg-blue-600 text-white hover:bg-blue-700"
+                                                ? "bg-white/60 text-slate-500 border border-white/60 cursor-not-allowed"
+                                                : "bg-cyan-700 text-white hover:bg-cyan-800 shadow-sm"
                                         }`}
                                     >
                                         {/* Balas */}

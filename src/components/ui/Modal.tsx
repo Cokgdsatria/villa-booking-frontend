@@ -14,19 +14,17 @@ export default function Modal ({ open, onClose, title, children }: ModalProps) {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-            <div className="bg-white rounded-xl w-full max-w-lg shadow-lg relative">
-                {/* Header */}
-                <div className="flex justify-between items-center px-6 py-4 border-b">
-                    <h3 className="font-semibold text-lg">{title}</h3>
+            <div className="bg-white/80 backdrop-blur border border-white/60 rounded-3xl w-full max-w-lg shadow-2xl relative overflow-hidden">
+                <div className="flex justify-between items-center px-6 py-4 border-b border-white/60">
+                    <h3 className="font-semibold text-lg text-slate-900">{title}</h3>
                     <button
                         onClick={onClose}
-                        className="text-gray-500 hover:text-gray-700 text-xl"
+                        className="text-slate-500 hover:text-slate-800 text-xl"
                     >
                         x
                     </button>
                 </div>
 
-                {/* Content*/}
                 <div className="p-6">{children}</div>
             </div>
         </div>
