@@ -7,7 +7,7 @@ import PublicNavbar from "@/components/navigation/PublicNavbar";
 import { getPropertyDetail } from "@/services/property.service";
 import { createInquiry } from "@/services/inquiry.service";
 
-type BillingType = "MONTHLY" | "YEARLY";
+type BillingType = "MONTHLY" | "YEARLY" | "DAILY";
 
 function CheckoutPageInner({
   params,
@@ -73,24 +73,87 @@ function CheckoutPageInner({
     run();
   }, [params.propertyId]);
 
-  const price = useMemo(() => {
-    if (!property) return 0;
-    return billingType === "MONTHLY"
-      ? Number(property.priceMonthly || 0)
-      : Number(property.priceYearly || 0);
-  }, [billingType, property]);
+  const parseLocalDate = (value: string) => new Date(value + "T00:00:00");
+  const formatDate = (d: Date) => d.toISOString().slice(0, 10);
+
+  const pricing = useMemo(() => {
+    if (!property) {
+      return {
+        appliedBillingType: billingType as BillingType,
+        nights: 0,
+        totalPrice: 0,
+        dailyRate: 0,
+        invalidDaily: false,
+        effectiveCheckIn: checkIn,
+        effectiveCheckOut: checkOut,
+      };
+    }
+
+    if (billingType === "MONTHLY") {
+      const start = parseLocalDate(checkIn);
+      const end = new Date(start);
+      end.setDate(end.getDate() + 30);
+      return {
+        appliedBillingType: "MONTHLY" as const,
+        nights: 30,
+        totalPrice: Number(property.priceMonthly || 0),
+        dailyRate: 0,
+        invalidDaily: false,
+        effectiveCheckIn: checkIn,
+        effectiveCheckOut: formatDate(end),
+      };
+    }
+
+    if (billingType === "YEARLY") {
+      const start = parseLocalDate(checkIn);
+      const end = new Date(start);
+      end.setFullYear(end.getFullYear() + 1);
+      return {
+        appliedBillingType: "YEARLY" as const,
+        nights: 365,
+        totalPrice: Number(property.priceYearly || 0),
+        dailyRate: 0,
+        invalidDaily: false,
+        effectiveCheckIn: checkIn,
+        effectiveCheckOut: formatDate(end),
+      };
+    }
+
+    const start = parseLocalDate(checkIn);
+    const end = parseLocalDate(checkOut);
+    const nights = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+    const dailyRate =
+      Number(property.priceNight) > 0
+        ? Number(property.priceNight)
+        : Math.round(Number(property.priceMonthly || 0) / 30);
+    const invalidDaily = !Number.isFinite(nights) || nights < 1 || nights >= 30;
+    return {
+      appliedBillingType: "DAILY" as const,
+      nights: Math.max(0, nights),
+      totalPrice: Math.round(dailyRate * Math.max(0, nights)),
+      dailyRate,
+      invalidDaily,
+      effectiveCheckIn: checkIn,
+      effectiveCheckOut: checkOut,
+    };
+  }, [billingType, checkIn, checkOut, property]);
 
   const handleContinue = async () => {
     const missing: string[] = [];
     if (!name.trim()) missing.push("Name");
     if (!email.trim()) missing.push("Email");
     if (!telephone.trim()) missing.push("Telephone Number");
-    if (!checkIn) missing.push("Check-in");
-    if (!checkOut) missing.push("Check-out");
+    if (!pricing.effectiveCheckIn) missing.push("Check-in");
+    if (!pricing.effectiveCheckOut) missing.push("Check-out");
     if (!Number.isFinite(guests) || guests < 1) missing.push("Guests");
 
     if (missing.length > 0) {
       alert(`Field wajib belum lengkap: ${missing.join(", ")}`);
+      return;
+    }
+
+    if (pricing.appliedBillingType === "DAILY" && pricing.invalidDaily) {
+      alert("Untuk durasi 30 malam atau lebih, gunakan Monthly atau Yearly.");
       return;
     }
 
@@ -101,9 +164,9 @@ function CheckoutPageInner({
         email: email.trim(),
         telephone: telephone.trim(),
         message: message.trim() || undefined,
-        billingType,
-        checkIn,
-        checkOut,
+        billingType: pricing.appliedBillingType,
+        checkIn: pricing.effectiveCheckIn,
+        checkOut: pricing.effectiveCheckOut,
         guests,
       });
       setStep("PAYMENT");
@@ -229,7 +292,7 @@ function CheckoutPageInner({
                   </div>
                   <div>
                     <span className="text-slate-500">Tanggal: </span>
-                    {checkIn} → {checkOut}
+                    {pricing.effectiveCheckIn} → {pricing.effectiveCheckOut}
                   </div>
                   <div>
                     <span className="text-slate-500">Guests: </span>
@@ -237,11 +300,16 @@ function CheckoutPageInner({
                   </div>
                   <div>
                     <span className="text-slate-500">Billing: </span>
-                    {billingType}
+                    {pricing.appliedBillingType}
                   </div>
                   <div className="font-semibold pt-2">
-                    Total: IDR {price.toLocaleString("id-ID")}
+                    Total: IDR {pricing.totalPrice.toLocaleString("id-ID")}
                   </div>
+                  {pricing.appliedBillingType === "DAILY" && (
+                    <div className="text-slate-600">
+                      IDR {pricing.dailyRate.toLocaleString("id-ID")}/Night • {pricing.nights} malam
+                    </div>
+                  )}
                 </div>
 
                 <button
@@ -288,11 +356,11 @@ function CheckoutPageInner({
               </div>
               <div>
                 <span className="text-slate-500">Check-in: </span>
-                {checkIn}
+                {pricing.effectiveCheckIn}
               </div>
               <div>
                 <span className="text-slate-500">Check-out: </span>
-                {checkOut}
+                {pricing.effectiveCheckOut}
               </div>
               <div>
                 <span className="text-slate-500">Guests: </span>
@@ -300,14 +368,23 @@ function CheckoutPageInner({
               </div>
               <div>
                 <span className="text-slate-500">Billing: </span>
-                {billingType}
+                {pricing.appliedBillingType}
               </div>
               <div className="pt-3 text-base font-semibold text-slate-900">
-                IDR {price.toLocaleString("id-ID")}
+                IDR {pricing.totalPrice.toLocaleString("id-ID")}
                 <span className="text-sm font-normal text-slate-600">
-                  {billingType === "MONTHLY" ? "/Mo" : "/Yr"}
+                  {pricing.appliedBillingType === "MONTHLY"
+                    ? "/Mo"
+                    : pricing.appliedBillingType === "YEARLY"
+                    ? "/Yr"
+                    : "/Total"}
                 </span>
               </div>
+              {pricing.appliedBillingType === "DAILY" && (
+                <div className="text-sm text-slate-600">
+                  IDR {pricing.dailyRate.toLocaleString("id-ID")}/Night • {pricing.nights} malam
+                </div>
+              )}
             </div>
           </aside>
         </div>

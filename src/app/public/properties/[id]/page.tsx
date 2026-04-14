@@ -6,7 +6,7 @@ import PublicNavbar from "@/components/navigation/PublicNavbar";
 import { getPropertyDetail } from "@/services/property.service";
 import { resolveAssetUrl } from "@/utils/url";
 
-type BillingType = "MONTHLY" | "YEARLY";
+type BillingType = "MONTHLY" | "YEARLY" | "DAILY";
 
 export default function PublicPropertyDetailPage({
   params,
@@ -23,7 +23,7 @@ export default function PublicPropertyDetailPage({
   });
   const [checkOut, setCheckOut] = useState<string>(() => {
     const d = new Date();
-    d.setDate(d.getDate() + 1);
+    d.setDate(d.getDate() + 30);
     return d.toISOString().slice(0, 10);
   });
   const [guests, setGuests] = useState(1);
@@ -41,13 +41,95 @@ export default function PublicPropertyDetailPage({
     run();
   }, [params.id]);
 
-  const priceText = useMemo(() => {
-    if (!property) return "-";
-    const price =
-      billingType === "MONTHLY" ? property.priceMonthly : property.priceYearly;
-    const suffix = billingType === "MONTHLY" ? "/Mo" : "/Yr";
-    return `IDR ${Number(price || 0).toLocaleString("id-ID")}${suffix}`;
-  }, [billingType, property]);
+  const parseLocalDate = (value: string) => new Date(value + "T00:00:00");
+  const formatDate = (d: Date) => d.toISOString().slice(0, 10);
+
+  const bookingPricing = useMemo(() => {
+    if (!property) {
+      return {
+        appliedBillingType: billingType as BillingType,
+        nights: 0,
+        totalPrice: 0,
+        label: "-",
+        sublabel: "",
+        invalidDaily: false,
+        effectiveCheckIn: checkIn,
+        effectiveCheckOut: checkOut,
+      };
+    }
+
+    const today = new Date();
+    const defaultCheckIn = formatDate(today);
+
+    if (billingType === "MONTHLY") {
+      const start = parseLocalDate(defaultCheckIn);
+      const end = new Date(start);
+      end.setDate(end.getDate() + 30);
+      return {
+        appliedBillingType: "MONTHLY" as const,
+        nights: 30,
+        totalPrice: Number(property.priceMonthly || 0),
+        label: `IDR ${Number(property.priceMonthly || 0).toLocaleString("id-ID")}/Mo`,
+        sublabel: "Langganan bulanan (30 malam)",
+        invalidDaily: false,
+        effectiveCheckIn: defaultCheckIn,
+        effectiveCheckOut: formatDate(end),
+      };
+    }
+
+    if (billingType === "YEARLY") {
+      const start = parseLocalDate(defaultCheckIn);
+      const end = new Date(start);
+      end.setFullYear(end.getFullYear() + 1);
+      return {
+        appliedBillingType: "YEARLY" as const,
+        nights: 365,
+        totalPrice: Number(property.priceYearly || 0),
+        label: `IDR ${Number(property.priceYearly || 0).toLocaleString("id-ID")}/Yr`,
+        sublabel: "Langganan tahunan (1 tahun)",
+        invalidDaily: false,
+        effectiveCheckIn: defaultCheckIn,
+        effectiveCheckOut: formatDate(end),
+      };
+    }
+
+    const start = parseLocalDate(checkIn);
+    const end = parseLocalDate(checkOut);
+    const nights = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+    const dailyRate =
+      Number(property.priceNight) > 0
+        ? Number(property.priceNight)
+        : Math.round(Number(property.priceMonthly || 0) / 30);
+    const invalidDaily = !Number.isFinite(nights) || nights < 1 || nights >= 30;
+    const total = Math.round(dailyRate * Math.max(0, nights));
+
+    return {
+      appliedBillingType: "DAILY" as const,
+      nights: Math.max(0, nights),
+      totalPrice: total,
+      label: `IDR ${total.toLocaleString("id-ID")}/Total`,
+      sublabel: `IDR ${dailyRate.toLocaleString("id-ID")}/Night • ${Math.max(0, nights)} malam`,
+      invalidDaily,
+      effectiveCheckIn: checkIn,
+      effectiveCheckOut: checkOut,
+    };
+  }, [billingType, checkIn, checkOut, property]);
+
+  useEffect(() => {
+    if (!property) return;
+    if (billingType === "MONTHLY" || billingType === "YEARLY") {
+      setCheckIn(bookingPricing.effectiveCheckIn);
+      setCheckOut(bookingPricing.effectiveCheckOut);
+      return;
+    }
+    const start = parseLocalDate(checkIn);
+    const end = parseLocalDate(checkOut);
+    if (end.getTime() <= start.getTime()) {
+      const next = new Date(start);
+      next.setDate(next.getDate() + 1);
+      setCheckOut(formatDate(next));
+    }
+  }, [billingType, bookingPricing.effectiveCheckIn, bookingPricing.effectiveCheckOut, checkIn, checkOut, property]);
 
   const photos = useMemo(() => {
     return Array.isArray(property?.photos) ? property.photos : [];
@@ -128,10 +210,10 @@ export default function PublicPropertyDetailPage({
 
   const handleContinue = () => {
     const paramsQS = new URLSearchParams();
-    paramsQS.set("checkIn", checkIn);
-    paramsQS.set("checkOut", checkOut);
+    paramsQS.set("checkIn", bookingPricing.effectiveCheckIn);
+    paramsQS.set("checkOut", bookingPricing.effectiveCheckOut);
     paramsQS.set("guests", String(guests));
-    paramsQS.set("billingType", billingType);
+    paramsQS.set("billingType", bookingPricing.appliedBillingType);
     router.push(`/public/checkout/${params.id}?${paramsQS.toString()}`);
   };
 
@@ -442,16 +524,22 @@ export default function PublicPropertyDetailPage({
           <aside className="bg-white/70 backdrop-blur border border-white/60 rounded-3xl p-6 h-fit shadow-[0_20px_60px_-40px_rgba(13,148,136,0.35)]">
             <div className="text-sm text-slate-600">Price</div>
             <div className="mt-1 text-2xl font-semibold text-slate-900">
-              {priceText}
+              {bookingPricing.label}
             </div>
+            {bookingPricing.sublabel && (
+              <div className="mt-2 text-sm text-slate-600">
+                {bookingPricing.sublabel}
+              </div>
+            )}
 
             <div className="mt-5 grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs text-slate-500 mb-1">Check-in</label>
                 <input
                   type="date"
-                  value={checkIn}
+                  value={bookingPricing.effectiveCheckIn}
                   onChange={(e) => setCheckIn(e.target.value)}
+                  disabled={billingType !== "DAILY"}
                   className="w-full border border-slate-200 rounded-xl px-3 py-2 bg-white/90 focus:outline-none focus:ring-4 focus:ring-cyan-200/50"
                 />
               </div>
@@ -459,8 +547,9 @@ export default function PublicPropertyDetailPage({
                 <label className="block text-xs text-slate-500 mb-1">Check-out</label>
                 <input
                   type="date"
-                  value={checkOut}
+                  value={bookingPricing.effectiveCheckOut}
                   onChange={(e) => setCheckOut(e.target.value)}
+                  disabled={billingType !== "DAILY"}
                   className="w-full border border-slate-200 rounded-xl px-3 py-2 bg-white/90 focus:outline-none focus:ring-4 focus:ring-cyan-200/50"
                 />
               </div>
@@ -486,14 +575,22 @@ export default function PublicPropertyDetailPage({
                 >
                   <option value="MONTHLY">Monthly</option>
                   <option value="YEARLY">Yearly</option>
+                  <option value="DAILY">Per Malam</option>
                 </select>
               </div>
             </div>
 
+            {billingType === "DAILY" && bookingPricing.invalidDaily && (
+              <div className="mt-4 text-sm text-rose-700 bg-rose-50 border border-rose-100 rounded-xl p-3">
+                Untuk durasi 30 malam atau lebih, gunakan Monthly atau Yearly.
+              </div>
+            )}
+
             <button
               type="button"
               onClick={handleContinue}
-              className="mt-6 w-full bg-cyan-700 text-white rounded-xl px-4 py-3 hover:bg-cyan-800 shadow-sm"
+              disabled={billingType === "DAILY" && bookingPricing.invalidDaily}
+              className="mt-6 w-full bg-cyan-700 text-white rounded-xl px-4 py-3 hover:bg-cyan-800 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
             >
               Continue
             </button>
