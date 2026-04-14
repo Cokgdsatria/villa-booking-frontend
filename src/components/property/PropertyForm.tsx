@@ -26,6 +26,7 @@ export default function PropertyForm({
         description: initialData?.description || "",
          priceMonthly: initialData?.priceMonthly || "",
         priceYearly: initialData?.priceYearly || "",
+        priceNight: initialData?.priceNight || "",
         thumbnailUrl: initialData?.thumbnailUrl || "",
     });
 
@@ -53,6 +54,7 @@ export default function PropertyForm({
                 bathroom: Number(form.bathroom),
                 priceMonthly: Number(form.priceMonthly),
                 priceYearly: Number(form.priceYearly),
+                priceNight: Number(form.priceNight),
             };
 
             const missing: string[] = [];
@@ -71,6 +73,8 @@ export default function PropertyForm({
                 missing.push("Monthly Price");
             if (!Number.isFinite(payload.priceYearly) || payload.priceYearly <= 0)
                 missing.push("Yearly Price");
+            if (!Number.isFinite(payload.priceNight) || payload.priceNight <= 0)
+                missing.push("Night Price");
 
             if (missing.length > 0) {
                 alert(`Field wajib belum lengkap: ${missing.join(", ")}`);
@@ -230,7 +234,7 @@ export default function PropertyForm({
                 </div>
                 ))}
 
-                {["priceMonthly", "priceYearly"].map((field) => (
+                {["priceMonthly", "priceYearly", "priceNight"].map((field) => (
                 <div
                     key={field}
                     className="border border-slate-200 bg-white/80 rounded-2xl p-4 focus-within:border-cyan-600 focus-within:ring-4 focus-within:ring-cyan-200/40 transition"
@@ -238,14 +242,22 @@ export default function PropertyForm({
                     <label className="block text-xs font-semibold text-gray-500 uppercase mb-2">
                     {field === "priceMonthly"
                         ? "Monthly Price"
-                        : "Yearly Price"}
+                        : field === "priceYearly"
+                          ? "Yearly Price"
+                          : "Night Price"}
                     </label>
                     <input
                     type="number"
                     name={field}
                     value={(form as any)[field]}
                     onChange={handleChange}
-                    placeholder={field === "priceMonthly" ? "7500000" : "90000000"}
+                    placeholder={
+                        field === "priceMonthly"
+                            ? "7500000"
+                            : field === "priceYearly"
+                              ? "90000000"
+                              : "350000"
+                    }
                     className="w-full outline-none bg-transparent"
                     required
                     />

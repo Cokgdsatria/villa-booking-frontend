@@ -6,7 +6,7 @@ export type CreateInquiryPayload = {
   email: string;
   telephone: string;
   message?: string;
-  billingType: "MONTHLY" | "YEARLY";
+  billingType: "MONTHLY" | "YEARLY" | "DAILY";
   checkIn: string;
   checkOut: string;
   guests: number;
